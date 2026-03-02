@@ -1,0 +1,47 @@
+{
+  "chunking": {
+    "responseStrategy": "argument-aligned",
+    "shortResponseThreshold": 800,
+    "chunkSize": 600,
+    "chunkOverlap": 0,
+    "respectMarkdown": false,
+    "respectSemanticBoundaries": true
+  },
+  "materialChunking": {
+    "strategy": "section-aware",
+    "minChunkSize": 400,
+    "maxChunkSize": 1500,
+    "headerDepthWeight": true,
+    "includeParentContext": true,
+    "chunkOverlap": 100
+  },
+  "argumentChunking": {
+    "argumentChunkSize": 1200,
+    "includeSourceQuote": true
+  },
+  "embedding": {
+    "model": "text-embedding-3-large",
+    "batchSize": 10,
+    "retryAttempts": 5,
+    "rateLimitDelay": 200
+  },
+  "retrieval": {
+    "hybrid": true,
+    "topK": 20,
+    "reRank": true,
+    "reRankTopK": 10,
+    "minScore": 0.6
+  },
+  "analysis": {
+    "microSummary": true,
+    "themeMapping": true,
+    "conflictRule": true,
+    "edgeCaseScreening": true,
+    "batchProcessing": true
+  },
+  "observability": {
+    "saveArtifacts": true,
+    "generateDebugReports": true,
+    "debugReportFormat": "html"
+  }
+}

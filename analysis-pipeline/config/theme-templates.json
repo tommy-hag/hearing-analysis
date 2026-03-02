@@ -1,0 +1,569 @@
+{
+  "documentTypes": {
+    "lokalplan": {
+      "name": "Lokalplan",
+      "description": "Lokalplaner regulerer bebyggelse, anvendelse og byudvikling i specifikke områder",
+      "legalBasis": {
+        "primaryLaw": "Planloven",
+        "legalPurpose": "Regulering af bebyggelse, anvendelse og byudvikling i specifikke områder",
+        "authorities": [
+          "Bebyggelse og anvendelse",
+          "Veje og trafik",
+          "Parkering",
+          "Bebyggelsens omfang og placering",
+          "Bebyggelsens ydre fremtræden",
+          "Ubebyggede arealer",
+          "Miljøforhold inden for planområdet"
+        ],
+        "limitations": [
+          "Kan ikke regulere indre indretning af bygninger (kun ydre fremtræden)",
+          "Kan ikke regulere drift og vedligeholdelse af bygninger",
+          "Kan ikke regulere åbningstider eller driftsforhold",
+          "Kan ikke regulere personalemæssige forhold",
+          "Kan ikke regulere bygningstekniske krav (det er Bygningsreglementets område)",
+          "Kan ikke regulere brandsikkerhed (det er Bygningsreglementets område)",
+          "Kan ikke regulere ejerforhold eller lejeforhold",
+          "Kan ikke regulere priser eller økonomiske forhold",
+          "Kan ikke regulere specifikke virksomheders drift"
+        ],
+        "relatedLaws": [
+          "Bygningsloven",
+          "Bygningsreglementet",
+          "Miljøbeskyttelsesloven"
+        ]
+      },
+      "outOfScopeExamples": [],
+      "commonThemes": [
+        {
+          "name": "Anvendelse",
+          "keywords": [
+            "anvendelse",
+            "bebyggelse",
+            "boliger",
+            "erhverv",
+            "funktion"
+          ],
+          "typicalSections": [
+            "§ 3",
+            "Anvendelse"
+          ],
+          "category": "regulation"
+        },
+        {
+          "name": "Veje",
+          "keywords": [
+            "veje",
+            "trafik",
+            "gader",
+            "vejnet",
+            "vejforbindelser"
+          ],
+          "typicalSections": [
+            "§ 4",
+            "Veje"
+          ],
+          "category": "regulation"
+        },
+        {
+          "name": "Bil- og cykelparkering",
+          "keywords": [
+            "parkering",
+            "parkeringspladser",
+            "cykelparkering",
+            "bilparkering"
+          ],
+          "typicalSections": [
+            "§ 5",
+            "Parkering"
+          ],
+          "category": "regulation"
+        },
+        {
+          "name": "Bebyggelsens omfang og placering",
+          "keywords": [
+            "højde",
+            "placering",
+            "skygge",
+            "bebyggelsesomfang",
+            "byggehøjde"
+          ],
+          "typicalSections": [
+            "§ 6",
+            "Bebyggelsens omfang"
+          ],
+          "category": "regulation"
+        },
+        {
+          "name": "Bebyggelsens ydre fremtræden",
+          "keywords": [
+            "facader",
+            "materialer",
+            "farver",
+            "arkitektur",
+            "udformning"
+          ],
+          "typicalSections": [
+            "§ 7",
+            "Facader",
+            "Bebyggelsens ydre"
+          ],
+          "category": "regulation"
+        },
+        {
+          "name": "Ubebyggede arealer",
+          "keywords": [
+            "beplantning",
+            "byrum",
+            "friarealer",
+            "grønne områder",
+            "landskab"
+          ],
+          "typicalSections": [
+            "§ 8",
+            "Ubebyggede arealer"
+          ],
+          "category": "regulation"
+        },
+        {
+          "name": "Bevaringsværdige bygninger",
+          "keywords": [
+            "nedrivning",
+            "bevaring",
+            "eksisterende bygning",
+            "kulturarv",
+            "fredning",
+            "nedrive",
+            "bevare",
+            "ombygning",
+            "renovering"
+          ],
+          "typicalSections": [
+            "§ 8",
+            "§ 9",
+            "Bevaring"
+          ],
+          "category": "regulation"
+        },
+        {
+          "name": "Miljøforhold",
+          "keywords": [
+            "støj",
+            "miljø",
+            "forurening",
+            "luftkvalitet"
+          ],
+          "typicalSections": [
+            "§ 9",
+            "Miljøforhold",
+            "Støj"
+          ],
+          "category": "regulation"
+        }
+      ],
+      "outOfScopeIndicators": [
+        "jf. Miljøbeskyttelsesloven",
+        "jf. Bygningsreglementet",
+        "henviser til",
+        "ifølge loven",
+        "lovgivning"
+      ],
+      "generalPurposeKeywords": [
+        "generelt",
+        "helt",
+        "hele planen",
+        "hele lokalplanen",
+        "overordnet",
+        "samlet"
+      ]
+    },
+    "dispensation": {
+      "name": "Dispensation",
+      "description": "Dispensationer fra lokalplan eller anden regulering",
+      "legalBasis": {
+        "primaryLaw": "Planloven § 19",
+        "legalPurpose": "Dispensation fra lokalplanens bestemmelser i konkrete tilfælde",
+        "authorities": [
+          "Dispensation fra specifikke lokalplanbestemmelser",
+          "Midlertidige undtagelser",
+          "Mindre afvigelser fra planen"
+        ],
+        "limitations": [
+          "Kan ikke dispensere fra lokalplanens principper",
+          "Kan ikke dispensere fra formålsbestemmelsen",
+          "Kan ikke give generelle dispensationer",
+          "Kan ikke ændre på områdets overordnede karakter"
+        ],
+        "relatedLaws": [
+          "Planloven",
+          "Lokalplaner",
+          "Byggeloven"
+        ]
+      },
+      "outOfScopeExamples": [
+        "principper",
+        "formål",
+        "generel ændring",
+        "områdekarakter"
+      ],
+      "commonThemes": [
+        {
+          "name": "Konkret dispensation",
+          "keywords": [
+            "dispensation",
+            "undtagelse",
+            "afvigelse",
+            "tilladelse"
+          ],
+          "category": "regulation"
+        },
+        {
+          "name": "Nabohensyn",
+          "keywords": [
+            "naboer",
+            "gener",
+            "indblik",
+            "skygge",
+            "støj"
+          ],
+          "category": "regulation"
+        },
+        {
+          "name": "Bygningshøjde og omfang",
+          "keywords": [
+            "højde",
+            "etager",
+            "areal",
+            "bygningsomfang"
+          ],
+          "category": "regulation"
+        }
+      ],
+      "outOfScopeIndicators": [
+        "principiel ændring",
+        "formålsændring",
+        "områdets karakter"
+      ],
+      "generalPurposeKeywords": [
+        "generelt",
+        "dispensationen",
+        "hele sagen"
+      ]
+    },
+    "partshoring": {
+      "name": "Partshøring",
+      "description": "Partshøring om konkrete afgørelser der berører borgere direkte",
+      "legalBasis": {
+        "primaryLaw": "Forvaltningsloven",
+        "legalPurpose": "Sikre at parter høres før afgørelser der vedrører dem",
+        "authorities": [
+          "Oplysninger af betydning for sagen",
+          "Partens ret til at udtale sig",
+          "Faktuelle forhold i sagen"
+        ],
+        "limitations": [
+          "Kan kun vedrøre den konkrete sag",
+          "Kan ikke ændre generel lovgivning",
+          "Kan ikke vedrøre tredjeparters forhold uden relevans for sagen",
+          "Kan ikke forholde sig til tidligere afsluttede sager"
+        ],
+        "relatedLaws": [
+          "Forvaltningsloven",
+          "Offentlighedsloven",
+          "Persondataloven"
+        ]
+      },
+      "outOfScopeExamples": [
+        "andre sager",
+        "generel lovgivning",
+        "tredjeparter",
+        "tidligere afgørelser"
+      ],
+      "commonThemes": [
+        {
+          "name": "Faktuelle forhold",
+          "keywords": [
+            "fakta",
+            "oplysninger",
+            "dokumentation",
+            "beviser"
+          ],
+          "category": "regulation"
+        },
+        {
+          "name": "Partens situation",
+          "keywords": [
+            "konsekvenser",
+            "betydning",
+            "påvirkning",
+            "individuelle forhold"
+          ],
+          "category": "regulation"
+        },
+        {
+          "name": "Sagsbehandling",
+          "keywords": [
+            "proces",
+            "tidsfrister",
+            "afgørelse",
+            "klage"
+          ],
+          "category": "regulation"
+        }
+      ],
+      "outOfScopeIndicators": [
+        "andre sager",
+        "generelt",
+        "politisk"
+      ],
+      "generalPurposeKeywords": [
+        "sagen",
+        "afgørelsen",
+        "hele forholdet"
+      ]
+    },
+    "politik": {
+      "name": "Politik/Strategi",
+      "description": "Politikker og strategier uden bindende juridisk virkning",
+      "legalBasis": {
+        "primaryLaw": "Kommunalfuldmagten",
+        "legalPurpose": "Fastlægge politiske visioner og retningslinjer for kommunens arbejde",
+        "authorities": [
+          "Politiske visioner og mål",
+          "Retningslinjer for forvaltningens arbejde",
+          "Prioriteringer og fokusområder",
+          "Principper for udvikling"
+        ],
+        "limitations": [
+          "Kan ikke pålægge borgere pligter",
+          "Kan ikke give eller fratage rettigheder",
+          "Kan ikke træde i stedet for lovgivning",
+          "Kan ikke binde fremtidige politiske beslutninger"
+        ],
+        "relatedLaws": [
+          "Kommunestyrelsesloven",
+          "Planloven",
+          "Sektorlovgivning"
+        ]
+      },
+      "outOfScopeExamples": [
+        "konkrete afgørelser",
+        "juridiske rettigheder",
+        "lovkrav",
+        "binding"
+      ],
+      "commonThemes": [
+        {
+          "name": "Vision og mål",
+          "keywords": [
+            "vision",
+            "mål",
+            "ambition",
+            "fremtid",
+            "udvikling"
+          ],
+          "category": "regulation"
+        },
+        {
+          "name": "Prioriteringer",
+          "keywords": [
+            "prioritet",
+            "fokus",
+            "indsats",
+            "ressourcer"
+          ],
+          "category": "regulation"
+        },
+        {
+          "name": "Principper",
+          "keywords": [
+            "princip",
+            "værdi",
+            "tilgang",
+            "holdning"
+          ],
+          "category": "regulation"
+        }
+      ],
+      "outOfScopeIndicators": [
+        "juridisk binding",
+        "lovkrav",
+        "konkret afgørelse"
+      ],
+      "generalPurposeKeywords": [
+        "generelt",
+        "politikken",
+        "hele strategien",
+        "overordnet"
+      ]
+    },
+    "bygningsreglement": {
+      "name": "Bygningsreglement",
+      "description": "Bygningsreglementer regulerer tekniske krav til bygninger",
+      "legalBasis": {
+        "primaryLaw": "Bygningsloven",
+        "legalPurpose": "Regulering af tekniske krav til bygninger",
+        "authorities": [
+          "Bygningstekniske krav",
+          "Brandsikkerhed",
+          "Brugsområder",
+          "Facader og udformning"
+        ],
+        "limitations": [
+          "Kan ikke regulere planlægning (det er lokalplanens område)",
+          "Kan ikke regulere miljøforhold uden for bygningen (det er lokalplanens område)"
+        ],
+        "relatedLaws": [
+          "Planloven",
+          "Lokalplaner",
+          "Brandbekæmpelsesloven"
+        ]
+      },
+      "outOfScopeExamples": [
+        "planlægning",
+        "byudvikling",
+        "områdeanvendelse"
+      ],
+      "commonThemes": [
+        {
+          "name": "Bygningstekniske krav",
+          "keywords": [
+            "bygningsteknik",
+            "konstruktion",
+            "stabilitet",
+            "brandsikkerhed"
+          ],
+          "category": "regulation"
+        },
+        {
+          "name": "Brugsområder",
+          "keywords": [
+            "brugsområde",
+            "anvendelse",
+            "funktion"
+          ],
+          "category": "regulation"
+        },
+        {
+          "name": "Facader og udformning",
+          "keywords": [
+            "facader",
+            "udformning",
+            "materialer"
+          ],
+          "category": "regulation"
+        }
+      ],
+      "outOfScopeIndicators": [
+        "jf. Bygningsloven",
+        "jf. Brandbekæmpelsesloven"
+      ],
+      "generalPurposeKeywords": [
+        "generelt",
+        "hele reglementet"
+      ]
+    },
+    "vedtægt": {
+      "name": "Vedtægt",
+      "description": "Vedtægter regulerer specifikke forhold i kommunen",
+      "legalBasis": {
+        "primaryLaw": "Kommunestyrelsesloven",
+        "legalPurpose": "Regulering af specifikke kommunale forhold",
+        "authorities": [
+          "Kommunale forhold",
+          "Lokale regler"
+        ],
+        "limitations": [
+          "Kan ikke stride mod national lovgivning",
+          "Kan ikke regulere forhold uden for kommunens kompetence"
+        ],
+        "relatedLaws": [
+          "Kommunestyrelsesloven"
+        ]
+      },
+      "outOfScopeExamples": [
+        "national lovgivning",
+        "statens kompetence"
+      ],
+      "commonThemes": [],
+      "outOfScopeIndicators": [],
+      "generalPurposeKeywords": [
+        "generelt",
+        "hele vedtægten"
+      ]
+    },
+    "default": {
+      "name": "Generelt dokument",
+      "description": "Generelt høringsmateriale",
+      "legalBasis": {
+        "primaryLaw": "Ukendt",
+        "legalPurpose": "Generel høring",
+        "authorities": [],
+        "limitations": []
+      },
+      "outOfScopeExamples": [],
+      "commonThemes": [],
+      "outOfScopeIndicators": [
+        "jf. loven",
+        "henviser til",
+        "ifølge lovgivning"
+      ],
+      "generalPurposeKeywords": [
+        "generelt",
+        "helt",
+        "hele dokumentet"
+      ]
+    }
+  },
+  "themeCategories": {
+    "regulation": {
+      "description": "Konkrete reguleringer i dokumentet",
+      "priority": 1
+    },
+    "general": {
+      "description": "Generelle kommentarer til dokumentets formål",
+      "priority": 2
+    },
+    "out-of-scope": {
+      "description": "Emner uden for dokumentets juridiske beføjelser",
+      "priority": 3
+    }
+  },
+  "mappingStrategy": {
+    "hybrid": true,
+    "useTemplate": true,
+    "useDocumentStructure": true,
+    "preferDocumentStructure": true,
+    "fallbackToTemplate": true,
+    "validateLegalScope": true
+  },
+  "learnedPatterns": [
+    {
+      "documentType": "lokalplan",
+      "pattern": "TOC-only input: Identificer sektionstitler men marker manglende paragraftekst",
+      "description": "Auto-learned pattern",
+      "learnedAt": "2025-12-03T21:53:18.918Z",
+      "confidence": 0.15
+    },
+    {
+      "documentType": "lokalplan",
+      "pattern": "SectionHeadingWithoutText: pattern for at returnere placeholders per § med anmodning om fuld tekst",
+      "description": "Auto-learned pattern",
+      "learnedAt": "2025-12-03T21:53:18.918Z",
+      "confidence": 0.15
+    },
+    {
+      "documentType": "lokalplan",
+      "pattern": "MissingNumericConstraints: flag hvor tal (m, %, antal, dB) forventes men ikke fundet",
+      "description": "Auto-learned pattern",
+      "learnedAt": "2025-12-03T21:53:18.918Z",
+      "confidence": 0.15
+    },
+    {
+      "documentType": "lokalplan",
+      "pattern": "IncludeCommentSection: genkend 'Kommentarer af generel karakter' som separat enhed når tekst mangler",
+      "description": "Auto-learned pattern",
+      "learnedAt": "2025-12-03T21:53:18.918Z",
+      "confidence": 0.15
+    }
+  ]
+}

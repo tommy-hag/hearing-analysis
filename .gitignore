@@ -1,0 +1,72 @@
+# Node
+node_modules/
+*.log
+*.out
+*.gz
+
+# Env
+.env
+.env.*
+env_example
+render_env
+
+# Cursor .cursor
+.cursor/
+mcp.json
+
+# Data
+data/
+uploads/
+tmp/
+server.log
+server.out
+hearings-cache.json
+.server.pid
+
+# SQLite
+**/*.sqlite
+**/*.db
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Python (for PDF conversion and evaluation)
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+
+# Analysis pipeline output (keep structure, not content)
+analysis-pipeline/output/runs/*/
+analysis-pipeline/output/hearings/
+analysis-pipeline/output/llm-traces/
+analysis-pipeline/output/*.docx
+analysis-pipeline/output/*.json
+analysis-pipeline/output/*.md
+
+# Root output folder
+output/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Zone identifiers (Windows)
+*:Zone.Identifier
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+
+# Temp files
+*.tmp
+
+# Allow example env
+!.env.example

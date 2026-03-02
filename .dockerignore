@@ -1,0 +1,44 @@
+# Git
+.git
+.gitignore
+
+# Dependencies (rebuilt in container)
+node_modules
+analysis-pipeline/node_modules
+python_packages
+venv
+__pycache__
+*.pyc
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Data directories (mounted as volumes)
+data/
+uploads/
+tmp/
+analysis-pipeline/output/runs/
+
+# Logs
+*.log
+
+# IDE and editor
+.vscode
+.idea
+.cursor/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test and debug
+coverage/
+.nyc_output/
+
+# Documentation build artifacts
+docs/_build/

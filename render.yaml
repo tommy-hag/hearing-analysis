@@ -1,0 +1,100 @@
+services:
+  - type: web
+    name: blivhort-ai
+    env: node
+    rootDir: .
+    buildCommand: |
+      set -e
+      echo "Build: Node version: $(node -v)"
+      echo "Build: NPM version: $(npm -v)"
+      export PYTHONPATH="$PWD/python_packages"
+      export npm_config_build_from_source=true
+      export npm_config_python=/usr/bin/python3
+      mkdir -p python_packages
+      python3 -m pip install --no-cache-dir --no-warn-script-location --target python_packages setuptools==70.0.0 packaging wheel || true
+      # Install all dependencies
+      PUPPETEER_SKIP_DOWNLOAD=true npm ci --no-audit --no-fund
+      # Verify better-sqlite3 works
+      node -e "const D=require('better-sqlite3');new D(':memory:');console.log('better-sqlite3 build OK')" || echo "better-sqlite3 verification failed"
+      if [ -f requirements.txt ]; then \
+        python3 -m pip install --no-cache-dir --no-warn-script-location --prefer-binary --only-binary=:all: --target python_packages -r requirements.txt; \
+      else \
+        echo 'No Python requirements.txt found, skipping'; \
+      fi
+    startCommand: |
+      echo "Runtime: Node version $(node -v)" && \
+      echo "Runtime: NPM version $(npm -v)" && \
+      echo "Runtime: Working directory: $(pwd)" && \
+      echo "Runtime: DB_PATH: $DB_PATH" && \
+      mkdir -p data/uploads tmp && \
+      rm -rf uploads && \
+      ln -s data/uploads uploads && \
+      node server.js
+    healthCheckPath: /healthz
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NPM_CONFIG_BUILD_FROM_SOURCE
+        value: "true"
+      - key: PIP_USER
+        value: "0"
+      - key: PYTHONPATH
+        value: "/opt/render/project/src/python_packages"
+      - key: PIP_ONLY_BINARY
+        value: ":all:"
+      - key: PIP_PREFER_BINARY
+        value: "1"
+      - key: SETUPTOOLS_USE_DISTUTILS
+        value: "local"
+      - key: ALLOW_RUNTIME_SQLITE_REBUILD
+        value: "1"
+      - key: YARN_ENABLE_IMMUTABLE_INSTALLS
+        value: "false"
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: MODEL_ID
+        value: gpt-5
+      - key: PYTHON_BIN
+        value: python3
+      - key: PUPPETEER_SKIP_DOWNLOAD
+        value: "true"
+      - key: PUPPETEER_SKIP_CHROMIUM_DOWNLOAD
+        value: "true"
+      - key: NODE_OPTIONS
+        value: "--enable-source-maps --max-old-space-size=768"
+      - key: NEXT_DATA_MAX_BYTES
+        value: "2500000"
+      - key: WARM_CONCURRENCY
+        value: "1"
+      - key: PUBLIC_URL
+        value: "https://blivhort-ai.onrender.com"
+      - key: PERSIST_PREFER
+        value: "true"
+      - key: PERSIST_ALWAYS_WRITE
+        value: "true"
+      - key: WARM_ALL_ON_START
+        value: "true"
+      - key: WARM_MAX_HEARINGS
+        value: "0"
+      - key: WARM_RETRY_ATTEMPTS
+        value: "2"
+      - key: INTERNAL_API_TIMEOUT_MS
+        value: "1500000"
+      - key: DISABLE_SEARCH_REMOTE_BACKFILL
+        value: "true"
+      - key: INDEX_REFRESH_MS
+        value: "21600000"
+      - key: CRON_ENABLED
+        value: "1"
+      - key: CRON_INDEX_SCHEDULE
+        value: "0 */6 * * *"
+      - key: CRON_HEARING_REFRESH
+        value: "*/30 * * * *"
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: DB_PATH
+        value: "/opt/render/project/src/data/hearings.db"
+    disks:
+      - name: app-data
+        mountPath: /opt/render/project/src/data
+        sizeGB: 1

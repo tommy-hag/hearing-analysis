@@ -1,0 +1,53 @@
+# Dependencies
+node_modules/
+venv/
+
+# Environment variables
+.env
+config/.env
+
+# Logs
+*.log
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Output artifacts (keep structure, not content)
+output/checkpoints/*/*/
+output/debug-reports/*.json
+output/*.json
+output/*.md
+output/*.docx
+
+# Database (if not tracking)
+*.sqlite
+*.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temp files
+tmp/
+temp/
+*.tmp
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+
+# Zone identifiers (Windows)
+*:Zone.Identifier
+

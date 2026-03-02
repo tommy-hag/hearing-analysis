@@ -1,0 +1,1882 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Høringsanalyse - Interaktiv Redigering</title>
+    <link rel="stylesheet" href="/global-styles.css">
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background: var(--color-gray-50);
+            margin: 0;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+            color: white;
+            padding: var(--space-sm) var(--space-xl);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow-lg);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        header h1 { margin: 0; font-size: var(--font-size-lg); }
+        header nav { display: flex; gap: var(--space-md); align-items: center; }
+        header nav a { color: white; text-decoration: none; opacity: 0.9; }
+        header nav a:hover { opacity: 1; }
+        .header-stats {
+            display: flex;
+            gap: var(--space-lg);
+            font-size: var(--font-size-sm);
+        }
+        .header-stats .stat {
+            display: flex;
+            align-items: center;
+            gap: var(--space-xs);
+        }
+        .header-stats .stat-value { font-weight: 600; }
+
+        /* View Toggle */
+        .view-toggle {
+            display: flex;
+            background: rgba(255,255,255,0.2);
+            border-radius: var(--radius-md);
+            padding: 2px;
+        }
+        .view-toggle button {
+            padding: var(--space-xs) var(--space-md);
+            border: none;
+            background: transparent;
+            color: white;
+            cursor: pointer;
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-sm);
+            transition: all 0.2s;
+        }
+        .view-toggle button.active {
+            background: white;
+            color: var(--color-primary);
+        }
+
+        /* Main Layout */
+        main {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 280px 1fr 320px;
+            gap: 0;
+            height: calc(100vh - 52px);
+        }
+
+        /* Filter Panel (Left) */
+        .filter-panel {
+            background: white;
+            border-right: 1px solid var(--color-gray-200);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .filter-header {
+            padding: var(--space-md);
+            border-bottom: 1px solid var(--color-gray-200);
+            font-weight: 600;
+        }
+        .filter-section {
+            padding: var(--space-md);
+            border-bottom: 1px solid var(--color-gray-100);
+        }
+        .filter-section h4 {
+            margin: 0 0 var(--space-sm) 0;
+            font-size: var(--font-size-xs);
+            color: var(--color-gray-500);
+            text-transform: uppercase;
+        }
+        .filter-options { display: flex; flex-direction: column; gap: var(--space-xs); }
+        .filter-option {
+            display: flex;
+            align-items: center;
+            gap: var(--space-xs);
+            font-size: var(--font-size-sm);
+            cursor: pointer;
+        }
+        .filter-option input { margin: 0; }
+
+        /* Sort Options */
+        .sort-options {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-xs);
+        }
+        .sort-option {
+            display: flex;
+            align-items: center;
+            gap: var(--space-xs);
+            font-size: var(--font-size-sm);
+            cursor: pointer;
+        }
+
+        /* Search */
+        .search-section {
+            padding: var(--space-md);
+            border-bottom: 1px solid var(--color-gray-200);
+        }
+        .search-input {
+            width: 100%;
+            padding: var(--space-sm);
+            border: 1px solid var(--color-gray-300);
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-sm);
+        }
+        .search-input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+        }
+        .search-buttons {
+            display: flex;
+            gap: var(--space-xs);
+            margin-top: var(--space-sm);
+        }
+        .search-buttons button {
+            flex: 1;
+            padding: var(--space-xs) var(--space-sm);
+            border: 1px solid var(--color-gray-300);
+            background: white;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: var(--font-size-xs);
+        }
+        .search-buttons button:hover { border-color: var(--color-primary); }
+        .search-buttons button.ai { background: var(--color-primary); color: white; border-color: var(--color-primary); }
+
+        /* Response List (Center) */
+        .response-list-container {
+            background: var(--color-gray-50);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Progress Bar */
+        .progress-bar-container {
+            padding: var(--space-md);
+            background: white;
+            border-bottom: 1px solid var(--color-gray-200);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-xs);
+            font-size: var(--font-size-sm);
+        }
+        .progress-bar {
+            height: 8px;
+            background: var(--color-gray-200);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--color-success), var(--color-primary));
+            transition: width 0.3s;
+        }
+
+        /* Bulk Actions */
+        .bulk-actions {
+            padding: var(--space-sm) var(--space-md);
+            background: var(--color-gray-100);
+            border-bottom: 1px solid var(--color-gray-200);
+            display: none;
+            gap: var(--space-sm);
+            align-items: center;
+        }
+        .bulk-actions.visible { display: flex; }
+        .bulk-actions .selection-count { font-weight: 600; }
+        .bulk-actions button {
+            padding: var(--space-xs) var(--space-md);
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+        }
+        .bulk-actions .btn-approve { background: var(--color-success); color: white; }
+        .bulk-actions .btn-no-opinion { background: var(--color-gray-500); color: white; }
+        .bulk-actions .btn-cancel { background: transparent; border: 1px solid var(--color-gray-400); }
+
+        /* Response Cluster */
+        .response-cluster {
+            margin: var(--space-md);
+            background: white;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+        }
+        .cluster-header {
+            padding: var(--space-md);
+            background: linear-gradient(135deg, #f0f7ff, #e8f4f8);
+            border-bottom: 1px solid var(--color-gray-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .cluster-header h3 {
+            margin: 0;
+            font-size: var(--font-size-md);
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+        .cluster-header .cluster-badge {
+            background: var(--color-primary);
+            color: white;
+            padding: 2px 8px;
+            border-radius: var(--radius-full);
+            font-size: var(--font-size-xs);
+        }
+        .cluster-actions {
+            display: flex;
+            gap: var(--space-sm);
+        }
+        .cluster-actions button {
+            padding: var(--space-xs) var(--space-md);
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+        }
+        .cluster-actions .btn-approve-all {
+            background: var(--color-success);
+            color: white;
+        }
+        .cluster-actions .btn-review {
+            background: white;
+            border: 1px solid var(--color-gray-300);
+        }
+        .cluster-preview {
+            padding: var(--space-md);
+            font-size: var(--font-size-sm);
+            color: var(--color-gray-600);
+            border-bottom: 1px solid var(--color-gray-100);
+        }
+        .cluster-position-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-xs);
+            background: rgba(231,111,81,0.1);
+            color: var(--color-primary);
+            padding: 2px 8px;
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-xs);
+            margin-top: var(--space-sm);
+        }
+
+        /* Single Response Item */
+        .response-item {
+            margin: var(--space-sm) var(--space-md);
+            background: white;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            border: 2px solid transparent;
+            transition: all 0.15s;
+            cursor: pointer;
+        }
+        .response-item:hover { border-color: var(--color-gray-300); }
+        .response-item.selected { border-color: var(--color-primary); background: rgba(231,111,81,0.03); }
+        .response-item.approved { opacity: 0.6; }
+        .response-item-header {
+            padding: var(--space-sm) var(--space-md);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--color-gray-100);
+        }
+        .response-item-header .left {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+        .response-item-header .checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        .response-item-header .respondent-info {
+            font-size: var(--font-size-sm);
+        }
+        .response-item-header .respondent-name { font-weight: 600; }
+        .response-item-header .respondent-type {
+            color: var(--color-gray-500);
+            font-size: var(--font-size-xs);
+        }
+
+        /* Confidence Score */
+        .confidence-score {
+            display: flex;
+            align-items: center;
+            gap: var(--space-xs);
+        }
+        .confidence-dots {
+            display: flex;
+            gap: 2px;
+        }
+        .confidence-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--color-gray-200);
+        }
+        .confidence-dot.filled.high { background: var(--color-success); }
+        .confidence-dot.filled.medium { background: var(--color-warning); }
+        .confidence-dot.filled.low { background: var(--color-error); }
+        .confidence-value {
+            font-size: var(--font-size-xs);
+            color: var(--color-gray-500);
+        }
+
+        .response-item-body {
+            padding: var(--space-md);
+        }
+        .response-preview {
+            font-size: var(--font-size-sm);
+            color: var(--color-gray-600);
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .response-item-footer {
+            padding: var(--space-sm) var(--space-md);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid var(--color-gray-100);
+            font-size: var(--font-size-xs);
+        }
+        .response-position-select {
+            padding: var(--space-xs) var(--space-sm);
+            border: 1px solid var(--color-gray-300);
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-xs);
+            background: white;
+            cursor: pointer;
+        }
+        .response-actions {
+            display: flex;
+            gap: var(--space-xs);
+        }
+        .response-actions button {
+            padding: var(--space-xs) var(--space-sm);
+            border: 1px solid var(--color-gray-300);
+            background: white;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: var(--font-size-xs);
+        }
+        .response-actions button:hover { border-color: var(--color-primary); }
+
+        /* Direction Tags */
+        .direction-tag {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: var(--radius-sm);
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .direction-tag.for { background: rgba(16,185,129,0.15); color: #059669; }
+        .direction-tag.against { background: rgba(239,68,68,0.15); color: #dc2626; }
+        .direction-tag.neutral { background: rgba(156,163,175,0.15); color: #6b7280; }
+
+        /* Detail Panel (Right) */
+        .detail-panel {
+            background: white;
+            border-left: 1px solid var(--color-gray-200);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .detail-header {
+            padding: var(--space-md);
+            border-bottom: 1px solid var(--color-gray-200);
+            background: var(--color-gray-50);
+        }
+        .detail-header h3 { margin: 0 0 var(--space-xs) 0; font-size: var(--font-size-md); }
+        .detail-meta {
+            font-size: var(--font-size-xs);
+            color: var(--color-gray-500);
+        }
+        .detail-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--space-md);
+        }
+        .detail-empty {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--color-gray-400);
+            text-align: center;
+            padding: var(--space-xl);
+        }
+        .detail-empty svg {
+            width: 48px;
+            height: 48px;
+            margin-bottom: var(--space-md);
+            opacity: 0.5;
+        }
+
+        .full-text {
+            font-size: var(--font-size-sm);
+            line-height: 1.7;
+            white-space: pre-wrap;
+        }
+        .detail-actions {
+            padding: var(--space-md);
+            border-top: 1px solid var(--color-gray-200);
+            display: flex;
+            gap: var(--space-sm);
+        }
+        .detail-actions button {
+            flex: 1;
+            padding: var(--space-sm);
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+        }
+        .detail-actions .btn-primary {
+            background: var(--color-primary);
+            color: white;
+        }
+        .detail-actions .btn-secondary {
+            background: var(--color-gray-200);
+            color: var(--color-gray-700);
+        }
+
+        /* Position View (Alternative) */
+        .position-view { display: none; flex-direction: column; }
+        .response-view { display: flex; flex-direction: column; }
+
+        .position-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--space-md);
+        }
+        .position-group {
+            background: white;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: var(--space-md);
+            overflow: hidden;
+        }
+        .position-group-header {
+            padding: var(--space-md);
+            background: var(--color-gray-50);
+            border-bottom: 1px solid var(--color-gray-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+        .position-group-header h4 { margin: 0; font-size: var(--font-size-sm); }
+        .position-group-header .count {
+            background: var(--color-primary);
+            color: white;
+            padding: 2px 8px;
+            border-radius: var(--radius-full);
+            font-size: var(--font-size-xs);
+        }
+        .position-group-content {
+            padding: var(--space-md);
+        }
+        .position-responses {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-xs);
+        }
+        .position-response-chip {
+            padding: 4px 8px;
+            background: var(--color-gray-100);
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-xs);
+            cursor: grab;
+        }
+        .position-response-chip:hover { background: var(--color-gray-200); }
+        .position-response-chip.dragging { opacity: 0.5; }
+
+        /* Position Cards (ny simpel visning) */
+        .position-card {
+            background: white;
+            border: 1px solid var(--color-gray-200);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--space-sm);
+            padding: var(--space-md);
+            transition: all 0.15s;
+        }
+        .position-card:hover { border-color: var(--color-gray-300); box-shadow: var(--shadow-sm); }
+        .position-card.approved { background: rgba(16,185,129,0.05); border-color: rgba(16,185,129,0.3); }
+        .position-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: var(--space-sm);
+        }
+        .position-card-title {
+            display: flex;
+            align-items: baseline;
+            gap: var(--space-sm);
+            flex-wrap: wrap;
+        }
+        .position-card-title strong { font-size: var(--font-size-md); }
+        .response-count {
+            font-size: var(--font-size-xs);
+            color: var(--color-gray-500);
+            background: var(--color-gray-100);
+            padding: 2px 8px;
+            border-radius: var(--radius-full);
+        }
+        .position-card-actions { display: flex; gap: var(--space-xs); }
+        .btn-approve-position {
+            background: var(--color-success);
+            color: white;
+            border: none;
+            padding: var(--space-xs) var(--space-md);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+            transition: all 0.15s;
+        }
+        .btn-approve-position:hover { filter: brightness(1.1); }
+        .position-summary {
+            font-size: var(--font-size-sm);
+            color: var(--color-gray-600);
+            line-height: 1.5;
+            margin-bottom: var(--space-sm);
+        }
+        .sub-positions {
+            background: var(--color-gray-50);
+            border-radius: var(--radius-sm);
+            padding: var(--space-sm);
+            margin-bottom: var(--space-sm);
+        }
+        .sub-position-item {
+            display: flex;
+            align-items: baseline;
+            gap: var(--space-xs);
+            font-size: var(--font-size-sm);
+            padding: 2px 0;
+        }
+        .sub-bullet { color: var(--color-primary); }
+        .sub-count { color: var(--color-gray-400); font-size: var(--font-size-xs); }
+        .position-responses-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+        .response-chip {
+            background: var(--color-gray-100);
+            padding: 2px 8px;
+            border-radius: var(--radius-sm);
+            font-size: 11px;
+            color: var(--color-gray-600);
+            cursor: pointer;
+        }
+        .response-chip:hover { background: var(--color-gray-200); }
+        .response-chip.more { background: transparent; color: var(--color-gray-400); }
+
+        /* Keyboard shortcuts panel */
+        .keyboard-shortcuts {
+            position: fixed;
+            bottom: var(--space-md);
+            right: var(--space-md);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: var(--space-sm) var(--space-md);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-xs);
+            display: flex;
+            gap: var(--space-md);
+            z-index: 1000;
+        }
+        .keyboard-shortcuts kbd {
+            background: rgba(255,255,255,0.2);
+            padding: 2px 6px;
+            border-radius: 3px;
+            margin-right: 4px;
+        }
+
+        /* Toast notifications */
+        .toast-container {
+            position: fixed;
+            bottom: var(--space-xl);
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2000;
+        }
+        .toast {
+            background: var(--color-gray-800);
+            color: white;
+            padding: var(--space-sm) var(--space-lg);
+            border-radius: var(--radius-md);
+            margin-top: var(--space-sm);
+            animation: slideUp 0.3s ease;
+        }
+        .toast.success { background: var(--color-success); }
+        .toast.error { background: var(--color-error); }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Loading states */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-xl);
+            color: var(--color-gray-500);
+        }
+        .spinner {
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--color-gray-200);
+            border-top-color: var(--color-primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: var(--space-sm);
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* No opinion section */
+        .no-opinion-section {
+            margin: var(--space-md);
+            padding: var(--space-md);
+            background: var(--color-gray-100);
+            border-radius: var(--radius-md);
+            border: 1px dashed var(--color-gray-300);
+        }
+        .no-opinion-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-sm);
+        }
+        .no-opinion-header h4 {
+            margin: 0;
+            color: var(--color-gray-600);
+            font-size: var(--font-size-sm);
+        }
+        .no-opinion-count {
+            background: var(--color-gray-500);
+            color: white;
+            padding: 2px 8px;
+            border-radius: var(--radius-full);
+            font-size: var(--font-size-xs);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div style="display:flex;align-items:center;gap:var(--space-lg)">
+            <h1 id="hearingTitle">Høringsanalyse</h1>
+            <div class="view-toggle">
+                <button id="viewResponses" class="active">Høringssvar</button>
+                <button id="viewPositions">Positioner</button>
+            </div>
+        </div>
+        <div class="header-stats">
+            <div class="stat">
+                <span>Godkendt:</span>
+                <span class="stat-value" id="approvedCount">0</span>
+                <span>/</span>
+                <span id="totalCount">0</span>
+            </div>
+            <div class="stat">
+                <span>Høj prioritet:</span>
+                <span class="stat-value" id="highPriorityCount">0</span>
+            </div>
+        </div>
+        <nav>
+            <a href="/" title="Tilbage til forsiden">← Søgning</a>
+            <button id="undoBtn" style="background:transparent;border:1px solid rgba(255,255,255,0.5);color:white;padding:4px 12px;border-radius:4px;cursor:pointer" disabled>Fortryd</button>
+            <button id="commitBtn" style="background:white;color:var(--color-primary);border:none;padding:4px 12px;border-radius:4px;cursor:pointer;font-weight:600">Gem & Fortsæt</button>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Filter Panel -->
+        <div class="filter-panel">
+            <div class="search-section">
+                <input type="text" class="search-input" id="searchInput" placeholder="Søg i høringssvar...">
+                <div class="search-buttons">
+                    <button id="searchBtn">Søg</button>
+                    <button id="aiSearchBtn" class="ai">✨ AI-søgning</button>
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <h4>Sortering</h4>
+                <div class="sort-options">
+                    <label class="sort-option">
+                        <input type="radio" name="sort" value="priority" checked>
+                        Problem-score ▼
+                    </label>
+                    <label class="sort-option">
+                        <input type="radio" name="sort" value="number">
+                        Henvendelse #
+                    </label>
+                    <label class="sort-option">
+                        <input type="radio" name="sort" value="name">
+                        Respondent
+                    </label>
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <h4>Status</h4>
+                <div class="filter-options">
+                    <label class="filter-option">
+                        <input type="checkbox" id="filterAll" checked>
+                        Alle
+                    </label>
+                    <label class="filter-option">
+                        <input type="checkbox" id="filterUncategorized">
+                        Ukategoriseret
+                    </label>
+                    <label class="filter-option">
+                        <input type="checkbox" id="filterLowConfidence">
+                        Lav konfidence
+                    </label>
+                    <label class="filter-option">
+                        <input type="checkbox" id="filterApproved">
+                        Godkendt
+                    </label>
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <h4>Respondenttype</h4>
+                <div class="filter-options" id="respondentTypeFilters">
+                    <!-- Dynamisk udfyldt -->
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <h4>Retning</h4>
+                <div class="filter-options">
+                    <label class="filter-option">
+                        <input type="checkbox" id="filterFor" checked>
+                        FOR ændring
+                    </label>
+                    <label class="filter-option">
+                        <input type="checkbox" id="filterAgainst" checked>
+                        IMOD ændring
+                    </label>
+                    <label class="filter-option">
+                        <input type="checkbox" id="filterNeutral" checked>
+                        Neutral
+                    </label>
+                </div>
+            </div>
+
+            <div class="filter-section" style="flex:1">
+                <h4>Smarte forslag</h4>
+                <div id="smartSuggestions" class="loading">
+                    <div class="spinner"></div>
+                    Indlæser...
+                </div>
+            </div>
+        </div>
+
+        <!-- Response List (Response View) -->
+        <div class="response-list-container response-view" id="responseView">
+            <div class="progress-bar-container">
+                <div class="progress-info">
+                    <span><span id="progressApproved">0</span> / <span id="progressTotal">0</span> godkendt</span>
+                    <span id="progressPercent">0%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width:0%"></div>
+                </div>
+            </div>
+
+            <div class="bulk-actions" id="bulkActions">
+                <span class="selection-count"><span id="selectedCount">0</span> valgt</span>
+                <button class="btn-approve" id="bulkApprove">Godkend valgte</button>
+                <button class="btn-no-opinion" id="bulkNoOpinion">Ingen holdning</button>
+                <button class="btn-cancel" id="bulkCancel">Annuller</button>
+            </div>
+
+            <div id="responseList">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    Indlæser høringssvar...
+                </div>
+            </div>
+        </div>
+
+        <!-- Position View (Alternative) -->
+        <div class="response-list-container position-view" id="positionView">
+            <div class="position-list" id="positionList">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    Indlæser positioner...
+                </div>
+            </div>
+        </div>
+
+        <!-- Detail Panel -->
+        <div class="detail-panel">
+            <div id="detailEmpty" class="detail-empty">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                <p>Vælg et høringssvar for at se detaljer</p>
+                <p style="font-size:var(--font-size-xs);margin-top:var(--space-sm)">
+                    Brug <kbd>↑</kbd><kbd>↓</kbd> til at navigere<br>
+                    <kbd>Space</kbd> til at vælge<br>
+                    <kbd>G</kbd> til at godkende
+                </p>
+            </div>
+            <div id="detailContent" style="display:none">
+                <div class="detail-header">
+                    <h3 id="detailTitle">Henvendelse #</h3>
+                    <div class="detail-meta">
+                        <span id="detailRespondent"></span> · <span id="detailType"></span>
+                    </div>
+                </div>
+                <div class="detail-content">
+                    <div class="full-text" id="detailText"></div>
+                </div>
+                <div class="detail-actions">
+                    <button class="btn-secondary" id="detailNoOpinion">Ingen holdning</button>
+                    <button class="btn-primary" id="detailApprove">Godkend</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Keyboard shortcuts hint -->
+    <div class="keyboard-shortcuts">
+        <span><kbd>↑</kbd><kbd>↓</kbd> Navigér</span>
+        <span><kbd>Space</kbd> Vælg</span>
+        <span><kbd>G</kbd> Godkend</span>
+        <span><kbd>N</kbd> Ingen holdning</span>
+        <span><kbd>Ctrl+Z</kbd> Fortryd</span>
+    </div>
+
+    <!-- Toast container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        // ============================================================================
+        // STATE
+        // ============================================================================
+        const hearingId = new URLSearchParams(window.location.search).get('hearingId') || '223';
+        let responses = [];
+        let clusters = [];
+        let positions = [];
+        let themes = [];
+        let confidenceData = {};
+        let selectedResponses = new Set();
+        let approvedResponses = new Set();
+        let noOpinionResponses = new Set();
+        let focusedIndex = -1;
+        let currentView = 'responses';
+        let operationHistory = [];
+        let currentSort = 'priority';
+        let filters = {
+            status: 'all',
+            respondentTypes: [],
+            directions: ['for', 'against', 'neutral'],
+            search: ''
+        };
+
+        // ============================================================================
+        // INITIALIZATION
+        // ============================================================================
+        async function init() {
+            await Promise.all([
+                loadResponses(),
+                loadGroupings(),
+                loadClusters(),
+                loadConfidence()
+            ]);
+
+            setupEventListeners();
+
+            // Start med position-view som default (bruger vil se hierarkiet først)
+            switchView('positions');
+            updateProgress();
+            updateStats();
+        }
+
+        async function loadResponses() {
+            try {
+                const resp = await fetch(`/api/pipeline/${hearingId}/responses?limit=5000`);
+                const data = await resp.json();
+                responses = data.responses || [];
+
+                // Load micro-summaries for direction info
+                const msResp = await fetch(`/api/pipeline/${hearingId}/analysis`);
+                const msData = await msResp.json();
+                if (msData.success) {
+                    document.getElementById('hearingTitle').textContent = msData.title || `Høring ${hearingId}`;
+                }
+            } catch (e) {
+                console.error('Failed to load responses:', e);
+                showToast('Kunne ikke indlæse høringssvar', 'error');
+            }
+        }
+
+        async function loadGroupings() {
+            try {
+                const resp = await fetch(`/api/pipeline/${hearingId}/groupings`);
+                const data = await resp.json();
+                if (data.success) {
+                    // API returnerer groupings som array af temaer direkte
+                    themes = data.groupings || [];
+                    buildPositionLookup();
+                    console.log(`[Groupings] Loaded ${themes.length} themes with ${themes.reduce((sum, t) => sum + (t.positions?.length || 0), 0)} positions`);
+                }
+            } catch (e) {
+                console.error('Failed to load groupings:', e);
+            }
+        }
+
+        async function loadClusters() {
+            try {
+                const resp = await fetch(`/api/pipeline/${hearingId}/response-clusters?threshold=0.9&minSize=3`);
+                const data = await resp.json();
+                if (data.success) {
+                    clusters = data.clusters || [];
+                }
+                // Clusters er valgfri - ignorér fejl stille
+            } catch (e) {
+                // Ignorér - clusters er ikke kritiske
+            }
+        }
+
+        async function loadConfidence() {
+            try {
+                const resp = await fetch(`/api/pipeline/${hearingId}/confidence`);
+                const data = await resp.json();
+                if (data.success) {
+                    confidenceData = data;
+                    document.getElementById('highPriorityCount').textContent = data.stats?.highPriority || 0;
+                }
+            } catch (e) {
+                console.error('Failed to load confidence:', e);
+            }
+        }
+
+        async function loadSmartSuggestions() {
+            // Fjernet - unødvendig kompleksitet
+            const container = document.getElementById('smartSuggestions');
+            if (container) {
+                container.innerHTML = '<div style="color:var(--color-gray-400);font-size:var(--font-size-xs)">Brug position-view til at gennemgå grupperinger</div>';
+            }
+        }
+
+        // Position lookup
+        let responseToPosition = {};
+        function buildPositionLookup() {
+            responseToPosition = {};
+            for (const theme of themes) {
+                for (const pos of (theme.positions || [])) {
+                    for (const num of (pos.responseNumbers || [])) {
+                        responseToPosition[num] = {
+                            themeName: theme.name,
+                            positionTitle: pos.title,
+                            key: `${theme.name}::${pos.title}`
+                        };
+                    }
+                }
+            }
+        }
+
+        // ============================================================================
+        // RENDERING
+        // ============================================================================
+        function renderResponses() {
+            const container = document.getElementById('responseList');
+
+            // Apply sorting and filtering
+            let filtered = filterResponses(responses);
+            let sorted = sortResponses(filtered);
+
+            // Group by cluster or show individually
+            const clusterMap = new Map();
+            for (const c of clusters) {
+                for (const num of c.responseNumbers) {
+                    clusterMap.set(num, c);
+                }
+            }
+
+            // Track rendered clusters
+            const renderedClusters = new Set();
+            const items = [];
+
+            for (const r of sorted) {
+                const cluster = clusterMap.get(r.responseNumber);
+                if (cluster && !renderedClusters.has(cluster.id)) {
+                    // Render cluster
+                    renderedClusters.add(cluster.id);
+                    items.push(renderCluster(cluster));
+                } else if (!cluster) {
+                    // Render individual response
+                    items.push(renderResponseItem(r));
+                }
+            }
+
+            if (items.length === 0) {
+                container.innerHTML = '<div class="loading">Ingen høringssvar matcher filtrene</div>';
+            } else {
+                container.innerHTML = items.join('');
+            }
+
+            // Attach event handlers
+            attachResponseHandlers();
+            updateTotalCount();
+        }
+
+        function renderCluster(cluster) {
+            const firstNum = cluster.responseNumbers[0];
+            const posInfo = responseToPosition[firstNum];
+
+            return `
+                <div class="response-cluster" data-cluster-id="${cluster.id}">
+                    <div class="cluster-header">
+                        <h3>
+                            <span class="cluster-badge">${cluster.size} ens svar</span>
+                            Gruppe: "${escapeHtml(cluster.representativeText?.substring(0, 50) || 'Lignende svar')}..."
+                        </h3>
+                        <div class="cluster-actions">
+                            <button class="btn-review" onclick="expandCluster(${cluster.id})">Gennemgå</button>
+                            <button class="btn-approve-all" onclick="approveCluster(${cluster.id})">Godkend alle</button>
+                        </div>
+                    </div>
+                    <div class="cluster-preview">
+                        ${escapeHtml(cluster.representativeText || '')}
+                        ${posInfo ? `<div class="cluster-position-tag">📍 ${escapeHtml(posInfo.positionTitle)}</div>` : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderResponseItem(r) {
+            const posInfo = responseToPosition[r.responseNumber];
+            const isSelected = selectedResponses.has(r.responseNumber);
+            const isApproved = approvedResponses.has(r.responseNumber);
+            const confidence = getResponseConfidence(r.responseNumber);
+            const direction = r.direction || 'neutral';
+
+            return `
+                <div class="response-item ${isSelected ? 'selected' : ''} ${isApproved ? 'approved' : ''}"
+                     data-response="${r.responseNumber}">
+                    <div class="response-item-header">
+                        <div class="left">
+                            <input type="checkbox" class="checkbox" ${isSelected ? 'checked' : ''}>
+                            <div class="respondent-info">
+                                <span class="respondent-name">#${r.responseNumber} ${escapeHtml(r.respondentName || 'Ukendt')}</span>
+                                <span class="respondent-type">${escapeHtml(r.respondentType || 'Borger')}</span>
+                            </div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:var(--space-sm)">
+                            <span class="direction-tag ${direction.toLowerCase()}">${directionLabel(direction)}</span>
+                            ${renderConfidenceScore(confidence)}
+                        </div>
+                    </div>
+                    <div class="response-item-body">
+                        <div class="response-preview">${escapeHtml(r.text?.substring(0, 200) || '')}</div>
+                    </div>
+                    <div class="response-item-footer">
+                        <select class="response-position-select" data-response="${r.responseNumber}">
+                            <option value="">-- Vælg position --</option>
+                            ${renderPositionOptions(posInfo?.key)}
+                        </select>
+                        <div class="response-actions">
+                            <button onclick="viewFullText(${r.responseNumber})">Vis fuld tekst</button>
+                            <button onclick="markNoOpinion(${r.responseNumber})">Ingen holdning</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderConfidenceScore(score) {
+            if (score === null) return '';
+            const level = score >= 0.75 ? 'high' : score >= 0.5 ? 'medium' : 'low';
+            const filledDots = Math.round(score * 5);
+            let dots = '';
+            for (let i = 0; i < 5; i++) {
+                dots += `<div class="confidence-dot ${i < filledDots ? 'filled ' + level : ''}"></div>`;
+            }
+            return `
+                <div class="confidence-score">
+                    <div class="confidence-dots">${dots}</div>
+                    <span class="confidence-value">${score.toFixed(2)}</span>
+                </div>
+            `;
+        }
+
+        function renderPositionOptions(currentKey) {
+            let options = '';
+            for (const theme of themes) {
+                options += `<optgroup label="${escapeHtml(theme.name)}">`;
+                for (const pos of (theme.positions || [])) {
+                    const key = `${theme.name}::${pos.title}`;
+                    const selected = key === currentKey ? 'selected' : '';
+                    options += `<option value="${escapeHtml(key)}" ${selected}>${escapeHtml(pos.title)}</option>`;
+                }
+                options += '</optgroup>';
+            }
+            return options;
+        }
+
+        function renderPositionView() {
+            const container = document.getElementById('positionList');
+
+            if (themes.length === 0) {
+                container.innerHTML = `
+                    <div class="loading" style="flex-direction:column;gap:var(--space-md)">
+                        <div style="font-size:var(--font-size-lg)">Ingen positioner fundet</div>
+                        <div style="font-size:var(--font-size-sm);max-width:400px;text-align:center">
+                            Kør først en pipeline-analyse for at gruppere høringssvarene i positioner.
+                            <br><br>
+                            <code style="background:var(--color-gray-100);padding:4px 8px;border-radius:4px">
+                                npm run pipeline:run -- ${hearingId} --save-checkpoints --write
+                            </code>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            // Beregn totaler
+            const totalPositions = themes.reduce((sum, t) => sum + (t.positions?.length || 0), 0);
+            const totalResponses = themes.reduce((sum, t) =>
+                sum + (t.positions || []).reduce((s, p) => s + (p.responseNumbers?.length || 0), 0), 0);
+
+            container.innerHTML = `
+                <div style="padding:var(--space-md);background:white;border-bottom:1px solid var(--color-gray-200);position:sticky;top:0;z-index:5">
+                    <div style="display:flex;justify-content:space-between;align-items:center">
+                        <div>
+                            <strong>${themes.length} temaer</strong> · ${totalPositions} positioner · ${totalResponses} tilknyttede svar
+                        </div>
+                        <button onclick="expandAllThemes()" style="padding:var(--space-xs) var(--space-md);border:1px solid var(--color-gray-300);background:white;border-radius:var(--radius-sm);cursor:pointer">
+                            Udvid alle
+                        </button>
+                    </div>
+                </div>
+                ${themes.map((theme, themeIndex) => `
+                    <div class="position-group" data-theme="${themeIndex}">
+                        <div class="position-group-header" onclick="togglePositionGroup(this)">
+                            <div style="display:flex;align-items:center;gap:var(--space-sm)">
+                                <span style="font-size:var(--font-size-lg)">▶</span>
+                                <h4 style="margin:0">${escapeHtml(theme.name)}</h4>
+                            </div>
+                            <div style="display:flex;align-items:center;gap:var(--space-sm)">
+                                <span class="count">${theme.positions?.length || 0} positioner</span>
+                                <span style="color:var(--color-gray-500);font-size:var(--font-size-xs)">
+                                    ${(theme.positions || []).reduce((s, p) => s + (p.responseNumbers?.length || 0), 0)} svar
+                                </span>
+                            </div>
+                        </div>
+                        <div class="position-group-content">
+                            ${(theme.positions || []).map((pos, posIndex) => renderPositionCard(theme, pos, posIndex)).join('')}
+                        </div>
+                    </div>
+                `).join('')}
+            `;
+        }
+
+        function renderPositionCard(theme, pos, posIndex) {
+            const responseCount = pos.responseNumbers?.length || 0;
+            const hasSubPositions = pos.subPositions && pos.subPositions.length > 0;
+            const isApproved = (pos.responseNumbers || []).every(num => approvedResponses.has(num));
+
+            return `
+                <div class="position-card ${isApproved ? 'approved' : ''}" data-position="${theme.name}::${pos.title}">
+                    <div class="position-card-header">
+                        <div class="position-card-title">
+                            <strong>${escapeHtml(pos.title)}</strong>
+                            <span class="response-count">${responseCount} svar</span>
+                        </div>
+                        <div class="position-card-actions">
+                            ${isApproved ?
+                                '<span style="color:var(--color-success);font-size:var(--font-size-sm)">✓ Godkendt</span>' :
+                                `<button onclick="approvePosition('${escapeHtml(theme.name)}', '${escapeHtml(pos.title)}')" class="btn-approve-position">Godkend alle</button>`
+                            }
+                        </div>
+                    </div>
+                    ${pos.summary ? `
+                        <div class="position-summary">${escapeHtml(pos.summary.substring(0, 200))}${pos.summary.length > 200 ? '...' : ''}</div>
+                    ` : ''}
+                    ${hasSubPositions ? `
+                        <div class="sub-positions">
+                            ${pos.subPositions.map(sub => `
+                                <div class="sub-position-item">
+                                    <span class="sub-bullet">•</span>
+                                    <span>${escapeHtml(sub.title || sub.what || sub)}</span>
+                                    ${sub.responseNumbers ? `<span class="sub-count">(${sub.responseNumbers.length})</span>` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                    <div class="position-responses-row">
+                        ${(pos.responseNumbers || []).slice(0, 10).map(num => {
+                            const resp = responses.find(r => r.responseNumber === num);
+                            const name = resp?.respondentName?.split(' ')[0] || '#' + num;
+                            return `<span class="response-chip" title="${escapeHtml(resp?.respondentName || 'Respondent ' + num)}">${escapeHtml(name)}</span>`;
+                        }).join('')}
+                        ${responseCount > 10 ? `<span class="response-chip more">+${responseCount - 10} flere</span>` : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        function expandAllThemes() {
+            document.querySelectorAll('.position-group-content').forEach(el => {
+                el.style.display = 'block';
+            });
+            document.querySelectorAll('.position-group-header span:first-child').forEach(el => {
+                el.textContent = '▼';
+            });
+        }
+
+        function approvePosition(themeName, positionTitle) {
+            const theme = themes.find(t => t.name === themeName);
+            if (!theme) return;
+            const pos = theme.positions?.find(p => p.title === positionTitle);
+            if (!pos) return;
+
+            for (const num of (pos.responseNumbers || [])) {
+                approvedResponses.add(num);
+            }
+
+            recordOperation('approve', { responseNumbers: pos.responseNumbers || [] });
+            updateProgress();
+            renderPositionView();
+            showToast(`${pos.responseNumbers?.length || 0} høringssvar godkendt`);
+        }
+
+        function attachPositionViewHandlers() {
+            // Klik på response chip viser fuld tekst
+            document.querySelectorAll('.response-chip:not(.more)').forEach(chip => {
+                chip.onclick = () => {
+                    const text = chip.title;
+                    const name = chip.textContent;
+                    // Find response number fra parent position
+                    const posCard = chip.closest('.position-card');
+                    if (!posCard) return;
+
+                    // Find respondent
+                    const resp = responses.find(r =>
+                        r.respondentName?.startsWith(name) ||
+                        chip.textContent === '#' + r.responseNumber
+                    );
+                    if (resp) {
+                        showDetail(resp.responseNumber);
+                    }
+                };
+            });
+        }
+
+        // ============================================================================
+        // FILTERING & SORTING
+        // ============================================================================
+        function filterResponses(list) {
+            return list.filter(r => {
+                // Search filter
+                if (filters.search) {
+                    const searchLower = filters.search.toLowerCase();
+                    const text = (r.text || '').toLowerCase();
+                    const name = (r.respondentName || '').toLowerCase();
+                    if (!text.includes(searchLower) && !name.includes(searchLower)) {
+                        return false;
+                    }
+                }
+
+                // Status filter
+                if (document.getElementById('filterUncategorized').checked) {
+                    if (responseToPosition[r.responseNumber]) return false;
+                }
+                if (document.getElementById('filterLowConfidence').checked) {
+                    const conf = getResponseConfidence(r.responseNumber);
+                    if (conf === null || conf >= 0.5) return false;
+                }
+                if (document.getElementById('filterApproved').checked) {
+                    if (!approvedResponses.has(r.responseNumber)) return false;
+                }
+
+                return true;
+            });
+        }
+
+        function sortResponses(list) {
+            const sorted = [...list];
+            switch (currentSort) {
+                case 'priority':
+                    sorted.sort((a, b) => {
+                        const confA = getResponseConfidence(a.responseNumber) || 0.5;
+                        const confB = getResponseConfidence(b.responseNumber) || 0.5;
+                        return confA - confB; // Low confidence first
+                    });
+                    break;
+                case 'number':
+                    sorted.sort((a, b) => a.responseNumber - b.responseNumber);
+                    break;
+                case 'name':
+                    sorted.sort((a, b) => (a.respondentName || '').localeCompare(b.respondentName || ''));
+                    break;
+            }
+            return sorted;
+        }
+
+        function getResponseConfidence(responseNumber) {
+            // Look up in confidence data
+            if (confidenceData.reviewQueue) {
+                const item = confidenceData.reviewQueue.find(q =>
+                    q.respondentCount > 0 // Just a placeholder, need proper mapping
+                );
+            }
+            // Default: calculate from position
+            const posInfo = responseToPosition[responseNumber];
+            if (!posInfo) return 0.3; // Uncategorized = low confidence
+            return 0.7; // In a position = decent confidence
+        }
+
+        // ============================================================================
+        // EVENT HANDLERS
+        // ============================================================================
+        function setupEventListeners() {
+            // View toggle
+            document.getElementById('viewResponses').onclick = () => switchView('responses');
+            document.getElementById('viewPositions').onclick = () => switchView('positions');
+
+            // Search
+            document.getElementById('searchBtn').onclick = performSearch;
+            document.getElementById('searchInput').onkeypress = e => { if (e.key === 'Enter') performSearch(); };
+            document.getElementById('aiSearchBtn').onclick = performAISearch;
+
+            // Sort
+            document.querySelectorAll('input[name="sort"]').forEach(el => {
+                el.onchange = () => {
+                    currentSort = el.value;
+                    renderResponses();
+                };
+            });
+
+            // Filters
+            document.querySelectorAll('.filter-option input').forEach(el => {
+                el.onchange = () => renderResponses();
+            });
+
+            // Bulk actions
+            document.getElementById('bulkApprove').onclick = bulkApprove;
+            document.getElementById('bulkNoOpinion').onclick = bulkNoOpinion;
+            document.getElementById('bulkCancel').onclick = clearSelection;
+
+            // Detail actions
+            document.getElementById('detailApprove').onclick = () => approveSelected();
+            document.getElementById('detailNoOpinion').onclick = () => markFocusedNoOpinion();
+
+            // Undo
+            document.getElementById('undoBtn').onclick = undo;
+
+            // Commit
+            document.getElementById('commitBtn').onclick = commitDraft;
+
+            // Keyboard shortcuts
+            document.addEventListener('keydown', handleKeyboard);
+        }
+
+        function attachResponseHandlers() {
+            // Response item click
+            document.querySelectorAll('.response-item').forEach(el => {
+                el.onclick = (e) => {
+                    if (e.target.matches('input, select, button')) return;
+                    const num = parseInt(el.dataset.response);
+                    toggleSelection(num);
+                };
+
+                el.querySelector('.checkbox').onclick = (e) => {
+                    e.stopPropagation();
+                    const num = parseInt(el.dataset.response);
+                    toggleSelection(num);
+                };
+            });
+
+            // Position select change
+            document.querySelectorAll('.response-position-select').forEach(el => {
+                el.onchange = () => {
+                    const num = parseInt(el.dataset.response);
+                    const newPos = el.value;
+                    moveToPosition(num, newPos);
+                };
+            });
+        }
+
+        function handleKeyboard(e) {
+            // Don't handle if typing in input
+            if (e.target.matches('input, textarea, select')) return;
+
+            switch (e.key) {
+                case 'ArrowUp':
+                    e.preventDefault();
+                    navigateFocus(-1);
+                    break;
+                case 'ArrowDown':
+                    e.preventDefault();
+                    navigateFocus(1);
+                    break;
+                case ' ':
+                    e.preventDefault();
+                    if (focusedIndex >= 0) toggleFocusedSelection();
+                    break;
+                case 'g':
+                case 'G':
+                    e.preventDefault();
+                    approveSelected();
+                    break;
+                case 'n':
+                case 'N':
+                    e.preventDefault();
+                    markFocusedNoOpinion();
+                    break;
+                case 'z':
+                    if (e.ctrlKey || e.metaKey) {
+                        e.preventDefault();
+                        undo();
+                    }
+                    break;
+            }
+        }
+
+        // ============================================================================
+        // ACTIONS
+        // ============================================================================
+        function switchView(view) {
+            currentView = view;
+            document.getElementById('viewResponses').classList.toggle('active', view === 'responses');
+            document.getElementById('viewPositions').classList.toggle('active', view === 'positions');
+
+            // Toggle visibility
+            document.getElementById('responseView').style.display = view === 'responses' ? 'flex' : 'none';
+            document.getElementById('positionView').style.display = view === 'positions' ? 'flex' : 'none';
+
+            if (view === 'positions') {
+                renderPositionView();
+                // Udvid første tema automatisk og tilknyt handlers
+                setTimeout(() => {
+                    const firstHeader = document.querySelector('.position-group-header');
+                    if (firstHeader) togglePositionGroup(firstHeader);
+                    attachPositionViewHandlers();
+                }, 100);
+            } else {
+                renderResponses();
+            }
+        }
+
+        function togglePositionGroup(header) {
+            const content = header.nextElementSibling;
+            const arrow = header.querySelector('span');
+            const isExpanded = content.style.display !== 'none';
+
+            content.style.display = isExpanded ? 'none' : 'block';
+            if (arrow) arrow.textContent = isExpanded ? '▶' : '▼';
+        }
+
+        function toggleSelection(responseNumber) {
+            if (selectedResponses.has(responseNumber)) {
+                selectedResponses.delete(responseNumber);
+            } else {
+                selectedResponses.add(responseNumber);
+            }
+            updateBulkActions();
+            updateResponseItemUI(responseNumber);
+            showDetail(responseNumber);
+        }
+
+        function toggleFocusedSelection() {
+            const items = document.querySelectorAll('.response-item');
+            if (focusedIndex >= 0 && focusedIndex < items.length) {
+                const num = parseInt(items[focusedIndex].dataset.response);
+                toggleSelection(num);
+            }
+        }
+
+        function navigateFocus(delta) {
+            const items = document.querySelectorAll('.response-item');
+            if (items.length === 0) return;
+
+            focusedIndex = Math.max(0, Math.min(items.length - 1, focusedIndex + delta));
+            items.forEach((el, i) => {
+                el.style.outline = i === focusedIndex ? '2px solid var(--color-primary)' : 'none';
+            });
+            items[focusedIndex].scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+
+            const num = parseInt(items[focusedIndex].dataset.response);
+            showDetail(num);
+        }
+
+        function clearSelection() {
+            selectedResponses.clear();
+            updateBulkActions();
+            renderResponses();
+        }
+
+        function updateBulkActions() {
+            const bulkActions = document.getElementById('bulkActions');
+            const count = selectedResponses.size;
+            document.getElementById('selectedCount').textContent = count;
+            bulkActions.classList.toggle('visible', count > 0);
+        }
+
+        function updateResponseItemUI(responseNumber) {
+            const el = document.querySelector(`.response-item[data-response="${responseNumber}"]`);
+            if (el) {
+                el.classList.toggle('selected', selectedResponses.has(responseNumber));
+                el.querySelector('.checkbox').checked = selectedResponses.has(responseNumber);
+            }
+        }
+
+        function showDetail(responseNumber) {
+            const response = responses.find(r => r.responseNumber === responseNumber);
+            if (!response) return;
+
+            document.getElementById('detailEmpty').style.display = 'none';
+            document.getElementById('detailContent').style.display = 'flex';
+            document.getElementById('detailContent').style.flexDirection = 'column';
+            document.getElementById('detailContent').style.height = '100%';
+
+            document.getElementById('detailTitle').textContent = `Henvendelse #${responseNumber}`;
+            document.getElementById('detailRespondent').textContent = response.respondentName || 'Ukendt';
+            document.getElementById('detailType').textContent = response.respondentType || 'Borger';
+            document.getElementById('detailText').textContent = response.text || '';
+        }
+
+        function viewFullText(responseNumber) {
+            showDetail(responseNumber);
+        }
+
+        // ============================================================================
+        // APPROVAL ACTIONS
+        // ============================================================================
+        function approveSelected() {
+            if (selectedResponses.size === 0) {
+                showToast('Ingen valgte høringssvar', 'error');
+                return;
+            }
+
+            const nums = Array.from(selectedResponses);
+            for (const num of nums) {
+                approvedResponses.add(num);
+            }
+
+            recordOperation('approve', { responseNumbers: nums });
+            selectedResponses.clear();
+            updateBulkActions();
+            updateProgress();
+            renderResponses();
+            showToast(`${nums.length} høringssvar godkendt`);
+        }
+
+        function approveCluster(clusterId) {
+            const cluster = clusters.find(c => c.id === clusterId);
+            if (!cluster) return;
+
+            for (const num of cluster.responseNumbers) {
+                approvedResponses.add(num);
+            }
+
+            recordOperation('approve', { responseNumbers: cluster.responseNumbers });
+            updateProgress();
+            renderResponses();
+            showToast(`${cluster.responseNumbers.length} høringssvar godkendt`);
+        }
+
+        function expandCluster(clusterId) {
+            // For now, just select all in cluster
+            const cluster = clusters.find(c => c.id === clusterId);
+            if (!cluster) return;
+
+            for (const num of cluster.responseNumbers) {
+                selectedResponses.add(num);
+            }
+            updateBulkActions();
+            showToast(`${cluster.responseNumbers.length} høringssvar valgt`);
+        }
+
+        function bulkApprove() {
+            approveSelected();
+        }
+
+        function bulkNoOpinion() {
+            if (selectedResponses.size === 0) return;
+
+            const nums = Array.from(selectedResponses);
+            for (const num of nums) {
+                noOpinionResponses.add(num);
+            }
+
+            recordOperation('no_opinion', { responseNumbers: nums });
+            selectedResponses.clear();
+            updateBulkActions();
+            renderResponses();
+            showToast(`${nums.length} høringssvar markeret som "Ingen holdning"`);
+        }
+
+        function markNoOpinion(responseNumber) {
+            noOpinionResponses.add(responseNumber);
+            recordOperation('no_opinion', { responseNumbers: [responseNumber] });
+            renderResponses();
+            showToast('Markeret som "Ingen holdning"');
+        }
+
+        function markFocusedNoOpinion() {
+            const items = document.querySelectorAll('.response-item');
+            if (focusedIndex >= 0 && focusedIndex < items.length) {
+                const num = parseInt(items[focusedIndex].dataset.response);
+                markNoOpinion(num);
+            }
+        }
+
+        function moveToPosition(responseNumber, positionKey) {
+            if (!positionKey) return;
+
+            const oldPos = responseToPosition[responseNumber];
+            recordOperation('move', {
+                responseNumber,
+                from: oldPos?.key || null,
+                to: positionKey
+            });
+
+            // Update local state
+            responseToPosition[responseNumber] = {
+                key: positionKey,
+                themeName: positionKey.split('::')[0],
+                positionTitle: positionKey.split('::')[1]
+            };
+
+            showToast(`Flyttet til "${positionKey.split('::')[1]}"`);
+        }
+
+        // ============================================================================
+        // SEARCH
+        // ============================================================================
+        function performSearch() {
+            const query = document.getElementById('searchInput').value.trim();
+            filters.search = query;
+            renderResponses();
+        }
+
+        async function performAISearch() {
+            const query = document.getElementById('searchInput').value.trim();
+            if (!query) {
+                showToast('Indtast en søgetekst', 'error');
+                return;
+            }
+
+            showToast('Søger med AI...');
+
+            try {
+                const resp = await fetch(`/api/pipeline/${hearingId}/semantic-search`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query, threshold: 0.5, limit: 30 })
+                });
+                const data = await resp.json();
+
+                if (data.success) {
+                    // Filter to only show matching responses
+                    const matchingNums = new Set(data.results.map(r => r.responseNumber));
+                    filters.search = ''; // Clear text search
+                    document.getElementById('searchInput').value = `AI: "${query}" (${data.resultCount} resultater)`;
+
+                    // Temporarily override responses list
+                    const originalResponses = responses;
+                    responses = responses.filter(r => matchingNums.has(r.responseNumber));
+                    renderResponses();
+                    responses = originalResponses;
+
+                    showToast(`Fandt ${data.resultCount} semantisk lignende svar`);
+                }
+            } catch (e) {
+                showToast('AI-søgning fejlede', 'error');
+            }
+        }
+
+        // ============================================================================
+        // UNDO/REDO
+        // ============================================================================
+        function recordOperation(type, data) {
+            operationHistory.push({ type, data, timestamp: Date.now() });
+            document.getElementById('undoBtn').disabled = false;
+        }
+
+        function undo() {
+            if (operationHistory.length === 0) return;
+
+            const op = operationHistory.pop();
+
+            switch (op.type) {
+                case 'approve':
+                    for (const num of op.data.responseNumbers) {
+                        approvedResponses.delete(num);
+                    }
+                    break;
+                case 'no_opinion':
+                    for (const num of op.data.responseNumbers) {
+                        noOpinionResponses.delete(num);
+                    }
+                    break;
+                case 'move':
+                    if (op.data.from) {
+                        responseToPosition[op.data.responseNumber] = {
+                            key: op.data.from,
+                            themeName: op.data.from.split('::')[0],
+                            positionTitle: op.data.from.split('::')[1]
+                        };
+                    } else {
+                        delete responseToPosition[op.data.responseNumber];
+                    }
+                    break;
+            }
+
+            updateProgress();
+            renderResponses();
+            document.getElementById('undoBtn').disabled = operationHistory.length === 0;
+            showToast('Handling fortrudt');
+        }
+
+        // ============================================================================
+        // COMMIT
+        // ============================================================================
+        async function commitDraft() {
+            if (operationHistory.length === 0) {
+                showToast('Ingen ændringer at gemme', 'error');
+                return;
+            }
+
+            showToast('Gemmer ændringer...');
+
+            try {
+                // Create draft
+                const draftResp = await fetch(`/api/pipeline/${hearingId}/draft`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({})
+                });
+                const draftData = await draftResp.json();
+
+                if (!draftData.success) throw new Error(draftData.error);
+
+                // Apply operations
+                for (const op of operationHistory) {
+                    if (op.type === 'move') {
+                        await fetch(`/api/pipeline/${hearingId}/draft/operation`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                type: 'MOVE_CITATION',
+                                responseNumber: op.data.responseNumber,
+                                fromPositionKey: op.data.from,
+                                toPositionKey: op.data.to
+                            })
+                        });
+                    }
+                }
+
+                // Commit draft
+                const commitResp = await fetch(`/api/pipeline/${hearingId}/draft/commit`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const commitData = await commitResp.json();
+
+                if (commitData.success) {
+                    operationHistory = [];
+                    document.getElementById('undoBtn').disabled = true;
+                    showToast('Ændringer gemt! Pipeline fortsætter...', 'success');
+                } else {
+                    throw new Error(commitData.error);
+                }
+            } catch (e) {
+                showToast('Kunne ikke gemme: ' + e.message, 'error');
+            }
+        }
+
+        // ============================================================================
+        // PROGRESS & STATS
+        // ============================================================================
+        function updateProgress() {
+            const approved = approvedResponses.size;
+            const total = responses.length;
+            const percent = total > 0 ? Math.round((approved / total) * 100) : 0;
+
+            document.getElementById('progressApproved').textContent = approved;
+            document.getElementById('progressTotal').textContent = total;
+            document.getElementById('progressPercent').textContent = percent + '%';
+            document.getElementById('progressFill').style.width = percent + '%';
+            document.getElementById('approvedCount').textContent = approved;
+        }
+
+        function updateStats() {
+            document.getElementById('totalCount').textContent = responses.length;
+        }
+
+        function updateTotalCount() {
+            const visible = document.querySelectorAll('.response-item').length;
+            const clusters = document.querySelectorAll('.response-cluster').length;
+            // Update if needed
+        }
+
+        // ============================================================================
+        // UTILITIES
+        // ============================================================================
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text || '';
+            return div.innerHTML;
+        }
+
+        function directionLabel(direction) {
+            switch ((direction || '').toLowerCase()) {
+                case 'for': return 'FOR';
+                case 'against': return 'IMOD';
+                case 'neutral': return 'NEUTRAL';
+                default: return 'UKENDT';
+            }
+        }
+
+        function showToast(message, type = '') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        // Start
+        init();
+    </script>
+</body>
+</html>

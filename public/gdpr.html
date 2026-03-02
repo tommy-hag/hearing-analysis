@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GDPR forberedelse</title>
+    <link rel="stylesheet" href="/global-styles.css">
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background: var(--color-gray-50);
+        }
+        header {
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+            color: var(--color-white);
+            padding: var(--space-lg) var(--space-2xl);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--space-lg);
+            box-shadow: var(--shadow-lg);
+        }
+        header h1 {
+            margin: 0;
+            font-size: var(--font-size-2xl);
+            font-weight: 700;
+        }
+        main {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: var(--space-lg);
+            padding: var(--space-xl);
+            align-items: start;
+        }
+        aside {
+            background: var(--color-white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            display: flex;
+            flex-direction: column;
+            max-height: calc(100vh - 200px);
+            overflow: hidden;
+        }
+        .hearing-list-header {
+            padding: var(--space-md) var(--space-lg);
+            border-bottom: 1px solid var(--color-gray-200);
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-sm);
+        }
+        .hearing-list-header .header-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .hearing-search-group {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            padding: 4px var(--space-sm);
+            border: 1px solid var(--color-gray-200);
+            border-radius: var(--radius-full);
+            background: var(--color-gray-25);
+            transition: border var(--transition-fast), box-shadow var(--transition-fast);
+            width: 100%;
+        }
+        .hearing-search-group:focus-within {
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(231, 111, 81, 0.15);
+        }
+        .hearing-search-group .search-icon {
+            font-size: 1rem;
+            color: var(--color-gray-400);
+        }
+        #hearing-search {
+            flex: 1;
+            border: none;
+            background: transparent;
+            outline: none;
+            font-size: var(--font-size-sm);
+        }
+        #hearing-search::placeholder {
+            color: var(--color-gray-400);
+        }
+        .hearing-items {
+            overflow-y: auto;
+        }
+        .hearing-item {
+            padding: var(--space-md) var(--space-lg);
+            border-bottom: 1px solid var(--color-gray-100);
+            cursor: pointer;
+            transition: background var(--transition-fast);
+        }
+        .hearing-item:hover {
+            background: var(--color-gray-50);
+        }
+        .hearing-item.active {
+            background: rgba(231, 111, 81, 0.1);
+            border-left: 4px solid var(--color-primary);
+            padding-left: calc(var(--space-lg) - 4px);
+        }
+        section#gdpr-detail {
+            background: var(--color-white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            padding: var(--space-xl);
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-xl);
+            max-height: calc(100vh - 200px);
+            overflow-y: auto;
+        }
+        .detail-section {
+            border: 1px solid var(--color-gray-200);
+            border-radius: var(--radius-md);
+            padding: var(--space-lg);
+        }
+        .detail-section h2 {
+            margin-top: 0;
+            font-size: var(--font-size-lg);
+        }
+        .card-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-md);
+        }
+        .card-list.filter-pending .card.is-approved {
+            display: none;
+        }
+        .response-section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--space-md);
+            flex-wrap: wrap;
+        }
+        .response-section-header h2 {
+            margin: 0;
+        }
+        .btn-filter {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-xs);
+            padding: var(--space-xs) var(--space-sm);
+            background: var(--color-gray-100);
+            border: 1px solid var(--color-gray-300);
+            border-radius: var(--radius-full);
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            color: var(--color-gray-700);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+        .btn-filter:hover {
+            background: var(--color-gray-200);
+            border-color: var(--color-gray-400);
+        }
+        .btn-filter.active {
+            background: var(--color-warning);
+            border-color: var(--color-warning-dark);
+            color: var(--color-dark);
+        }
+        .btn-filter .filter-count {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 20px;
+            height: 20px;
+            padding: 0 6px;
+            background: var(--color-warning);
+            color: var(--color-dark);
+            border-radius: var(--radius-full);
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+        }
+        .btn-filter.active .filter-count {
+            background: var(--color-white);
+        }
+        .card {
+            border: 1px solid var(--color-gray-200);
+            border-radius: var(--radius-md);
+            padding: var(--space-md);
+            background: var(--color-gray-25);
+        }
+        .raw-response .prepared-response {
+            margin-top: var(--space-sm);
+            background: var(--color-white);
+        }
+        .raw-response .prepared-response textarea {
+            background: var(--color-white);
+        }
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--space-sm);
+            margin-bottom: var(--space-sm);
+        }
+        textarea {
+            width: 100%;
+            min-height: 120px;
+            max-height: 600px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--color-gray-300);
+            padding: var(--space-sm);
+            font-family: var(--font-mono);
+            resize: vertical;
+            overflow-y: auto;
+            transition: height 0.1s ease-out;
+        }
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-sm);
+            margin-top: var(--space-sm);
+        }
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-xs);
+            padding: 2px var(--space-sm);
+            border-radius: var(--radius-full);
+            background: var(--color-gray-100);
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+        }
+        .status-pill.ready { background: rgba(46, 204, 113, 0.15); color: var(--color-success-dark); }
+        .status-pill.draft { background: rgba(235, 87, 87, 0.15); color: var(--color-danger); }
+        .status-pill.progress { background: rgba(241, 196, 15, 0.15); color: var(--color-warning-dark); }
+        .pill-group { display: flex; gap: var(--space-xs); flex-wrap: wrap; }
+        .list-empty {
+            padding: var(--space-md);
+            border: 1px dashed var(--color-gray-300);
+            border-radius: var(--radius-md);
+            text-align: center;
+            color: var(--color-gray-500);
+        }
+        .attachment-block {
+            border: 1px solid var(--color-gray-200);
+            border-radius: var(--radius-sm);
+            padding: var(--space-sm);
+            background: var(--color-white);
+            margin-top: var(--space-sm);
+        }
+        .attachment-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--space-sm);
+            font-size: var(--font-size-sm);
+        }
+        .material-upload {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            margin-bottom: var(--space-sm);
+        }
+        .material-upload input[type="file"] {
+            flex: 1;
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            background: var(--color-gray-200);
+            border-radius: var(--radius-full);
+            font-size: var(--font-size-xs);
+        }
+        .badge.approved { background: rgba(46,204,113,0.15); color: var(--color-success-dark); }
+        .badge.pending { background: rgba(241,196,15,0.15); color: var(--color-warning-dark); }
+        .inline-input {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+        .inline-input label {
+            display: flex;
+            align-items: center;
+            gap: var(--space-xs);
+            font-size: var(--font-size-sm);
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-sm);
+            cursor: pointer;
+            user-select: none;
+        }
+        .toggle-switch input[type="checkbox"] {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .toggle-slider {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+            background-color: var(--color-gray-300);
+            border-radius: 24px;
+            transition: background-color var(--transition-fast);
+        }
+        .toggle-slider::before {
+            content: "";
+            position: absolute;
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: var(--color-white);
+            border-radius: 50%;
+            transition: transform var(--transition-fast);
+        }
+        .toggle-switch input[type="checkbox"]:checked + .toggle-slider {
+            background-color: var(--color-primary);
+        }
+        .toggle-switch input[type="checkbox"]:checked + .toggle-slider::before {
+            transform: translateX(20px);
+        }
+        .toggle-switch input[type="checkbox"]:focus + .toggle-slider {
+            box-shadow: 0 0 0 3px rgba(231, 111, 81, 0.25);
+        }
+        .toggle-label {
+            font-size: var(--font-size-sm);
+            color: var(--color-dark);
+        }
+        button {
+            cursor: pointer;
+        }
+        .publish-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: var(--space-sm);
+            margin-top: var(--space-md);
+        }
+        .publish-bar button {
+            background: var(--color-primary);
+            color: var(--color-white);
+            border: none;
+            border-radius: var(--radius-sm);
+            padding: var(--space-sm) var(--space-md);
+            font-weight: 600;
+        }
+        .publish-bar button[disabled] {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        /* Settings Modal */
+        .settings-modal-backdrop {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+            align-items: center;
+            justify-content: center;
+        }
+        .settings-modal-backdrop.show {
+            display: flex;
+        }
+        .settings-modal {
+            background: var(--color-white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-xl);
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow: visible;
+            display: flex;
+            flex-direction: column;
+        }
+        .settings-modal-header {
+            padding: var(--space-lg) var(--space-xl);
+            border-bottom: 1px solid var(--color-gray-200);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .settings-modal-header h3 {
+            margin: 0;
+            font-size: var(--font-size-xl);
+        }
+        .settings-modal-body {
+            padding: var(--space-xl);
+            overflow-y: auto;
+            overflow-x: hidden;
+            flex: 1;
+            min-height: 0;
+        }
+        .settings-group {
+            margin-bottom: var(--space-lg);
+        }
+        .settings-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: var(--space-xs);
+            color: var(--color-dark);
+        }
+        .hearing-fetch-group {
+            position: relative;
+        }
+        #hearing-search-input {
+            width: 100%;
+        }
+        .suggestion-item {
+            padding: var(--space-sm) var(--space-md);
+            border-bottom: 1px solid var(--color-gray-200);
+            cursor: pointer;
+            transition: background-color var(--transition-fast);
+        }
+        .suggestion-item:hover {
+            background-color: var(--color-gray-50);
+        }
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+        .suggestion-content {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-xs);
+        }
+        .suggestion-title {
+            font-weight: 600;
+            color: var(--color-dark);
+            font-size: var(--font-size-sm);
+        }
+        .suggestion-meta {
+            display: flex;
+            align-items: center;
+            gap: var(--space-xs);
+            font-size: var(--font-size-xs);
+            color: var(--color-gray-600);
+        }
+        .suggestion-meta span {
+            display: inline-block;
+        }
+        /* Publish Footer */
+        .publish-footer {
+            position: sticky;
+            bottom: 0;
+            z-index: 100;
+            background: var(--color-white);
+            border-top: 2px solid var(--color-primary);
+            box-shadow: 0 -4px 12px rgba(90, 83, 75, 0.1);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+        .publish-footer-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--space-lg);
+            padding: var(--space-md) var(--space-xl);
+        }
+        .publish-footer-info {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-xs);
+        }
+        .publish-footer-text {
+            font-weight: 600;
+            color: var(--color-dark);
+        }
+        .publish-footer-hint {
+            font-size: var(--font-size-sm);
+            color: var(--color-gray-600);
+        }
+        .publish-footer-btn {
+            white-space: nowrap;
+        }
+        .loading-indicator {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            color: var(--color-gray-600);
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+        }
+        .loading-spinner {
+            border: 3px solid var(--color-gray-200);
+            border-top: 3px solid var(--color-primary);
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            animation: spin 1s linear infinite;
+        }
+        .step-loading-indicator {
+            padding: var(--space-xl);
+            text-align: center;
+        }
+        .loading-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--space-lg);
+        }
+        .loading-spinner-pulse {
+            width: 48px;
+            height: 48px;
+            border: 3px solid var(--color-gray-200);
+            border-top-color: var(--color-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        .loading-steps {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-sm);
+            align-items: flex-start;
+            width: 100%;
+            max-width: 400px;
+        }
+        .loading-step {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            padding: var(--space-xs);
+            opacity: 0.5;
+            transition: opacity var(--transition-fast);
+        }
+        .loading-step.active {
+            opacity: 1;
+            font-weight: 600;
+        }
+        .loading-step.completed {
+            opacity: 0.8;
+        }
+        .step-indicator {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--color-gray-200);
+            color: var(--color-gray-600);
+            font-size: var(--font-size-sm);
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        .loading-step.active .step-indicator {
+            background: var(--color-primary);
+            color: var(--color-white);
+        }
+        .loading-step.completed .step-indicator {
+            background: var(--color-success);
+            color: var(--color-white);
+        }
+        .step-text {
+            flex: 1;
+        }
+        .progress-text {
+            color: var(--color-gray-600);
+            font-weight: 400;
+        }
+        .loading-progress {
+            width: 100%;
+            max-width: 400px;
+            height: 4px;
+            background: var(--color-gray-200);
+            border-radius: var(--radius-full);
+            overflow: hidden;
+        }
+        .loading-progress-bar {
+            height: 100%;
+            background: var(--color-primary);
+            transition: width var(--transition-fast);
+            border-radius: var(--radius-full);
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes fadeInScale {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+            100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+        @media (max-width: 1100px) {
+            main {
+                grid-template-columns: 1fr;
+            }
+            aside {
+                max-height: none;
+                order: 2;
+            }
+            section#gdpr-detail {
+                max-height: none;
+                order: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div>
+            <h1>GDPR forberedelse</h1>
+            <p style="margin:0; opacity:0.85">Manuel kvalitetssikring af høringssvar og materiale inden publicering</p>
+        </div>
+        <nav>
+            <button class="btn btn-icon" id="settings-btn" style="color:var(--color-white);background:transparent;border:none;cursor:pointer;" title="Indstillinger">
+                <svg class="icon" style="width:24px;height:24px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"></path>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                </svg>
+            </button>
+            <a href="/" style="color:var(--color-white); text-decoration:underline;">Tilbage til forsiden</a>
+        </nav>
+    </header>
+    <main>
+        <aside>
+            <div class="hearing-list-header">
+                <div class="header-top">
+                    <strong>Høringer</strong>
+                    <span class="status-pill" id="hearing-count" title="Viste høringer">0</span>
+                </div>
+                <div class="hearing-search-group">
+                    <svg class="search-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;color:var(--color-gray-500);">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                    <input type="search" id="hearing-search" placeholder="Søg høring..." aria-label="Søg høring" autocomplete="off">
+                </div>
+            </div>
+            <div class="hearing-items" id="hearing-list"></div>
+        </aside>
+        <section id="gdpr-detail"></section>
+    </main>
+
+    <template id="raw-response-template">
+        <div class="card raw-response">
+            <div class="card-header">
+                <div>
+                    <strong class="raw-title"></strong>
+                    <div class="pill-group" data-role="badges"></div>
+                </div>
+                <span class="badge">Originalt svar</span>
+            </div>
+            <div class="raw-body"></div>
+            <div class="raw-attachments"></div>
+        </div>
+    </template>
+
+    <template id="prepared-response-template">
+        <div class="card prepared-response">
+            <div class="card-header">
+                <div class="title-group"></div>
+                <div class="inline-input">
+                    <label class="toggle-switch">
+                        <input type="checkbox" data-role="approved">
+                        <span class="toggle-slider"></span>
+                        <span class="toggle-label">Godkendt</span>
+                    </label>
+                    <button class="btn btn-secondary" data-action="reset-prepared">Nulstil</button>
+                    <button class="btn btn-primary" data-action="save">Gem</button>
+                </div>
+            </div>
+            <div class="response-focus-selector" style="margin-bottom:var(--space-sm);padding:var(--space-sm);background:var(--color-gray-50);border-radius:var(--radius-sm);display:none;">
+                <label style="display:flex;align-items:center;gap:var(--space-xs);font-size:var(--font-size-sm);">
+                    <span>Fokus:</span>
+                    <select data-role="focus-mode" style="flex:1;padding:var(--space-xs);border:1px solid var(--color-gray-300);border-radius:var(--radius-sm);font-size:var(--font-size-sm);">
+                        <option value="response">Fokusér på selve høringssvar</option>
+                        <option value="both">Fokusér på begge</option>
+                        <option value="attachment">Fokusér på vedhæftningen</option>
+                    </select>
+                </label>
+            </div>
+            <textarea data-role="text"></textarea>
+            <div class="attachments"></div>
+        </div>
+    </template>
+
+    <template id="attachment-template">
+        <div class="attachment-block">
+            <div class="attachment-header">
+                <div class="attachment-title"></div>
+                <div class="inline-input">
+                    <label class="toggle-switch">
+                        <input type="checkbox" data-role="attachment-approved">
+                        <span class="toggle-slider"></span>
+                        <span class="toggle-label">Godkendt</span>
+                    </label>
+                    <button data-action="fetch-single-attachment" class="btn btn-secondary" title="Hent og konvertér filen fra blivhørt">Hent fil</button>
+                    <button data-action="save-attachment" class="btn btn-secondary">Gem</button>
+                </div>
+            </div>
+            <div class="attachment-links" style="margin-bottom:var(--space-sm);"></div>
+            <textarea data-role="attachment-text"></textarea>
+        </div>
+    </template>
+
+    <template id="material-template">
+        <div class="card material-item">
+            <div class="card-header">
+                <div>
+                    <strong class="material-title"></strong>
+                    <div class="pill-group" data-role="material-badges"></div>
+                </div>
+                <div class="inline-input">
+                    <label class="toggle-switch">
+                        <input type="checkbox" data-role="material-approved">
+                        <span class="toggle-slider"></span>
+                        <span class="toggle-label">Godkendt</span>
+                    </label>
+                    <button class="btn btn-secondary" data-action="save-material">Gem</button>
+                    <button class="btn btn-secondary" data-action="delete-material">Slet</button>
+                </div>
+            </div>
+            <textarea data-role="material-text"></textarea>
+        </div>
+    </template>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal-backdrop" class="settings-modal-backdrop">
+        <div class="settings-modal">
+            <div class="settings-modal-header">
+                <h3>Indstillinger</h3>
+                <button class="btn btn-icon btn-ghost" id="settings-modal-close">
+                    <svg class="icon" style="width:20px;height:20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="settings-modal-body">
+                <div class="settings-group">
+                    <label class="settings-label">Søg og hent høringer</label>
+                    <p style="margin:var(--space-xs) 0 var(--space-sm) 0;font-size:var(--font-size-sm);color:var(--color-gray-600);">
+                        Søg efter høringer i indexet eller indtast et hørings-ID. Klik på et resultat for at hente høringssvar.
+                    </p>
+                    <div style="position:relative;">
+                        <div class="hearing-fetch-group" style="display:flex;gap:var(--space-xs);position:relative;">
+                            <svg class="icon" style="position:absolute;left:var(--space-sm);top:50%;transform:translateY(-50%);width:18px;height:18px;color:var(--color-gray-400);pointer-events:none;z-index:1;">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <path d="m21 21-4.35-4.35"></path>
+                            </svg>
+                            <input type="text" id="hearing-search-input" placeholder="Søg høring..." style="flex:1;padding:var(--space-xs) var(--space-sm) var(--space-xs) calc(var(--space-sm) + 24px);border:1px solid var(--color-gray-300);border-radius:var(--radius-sm);font-size:var(--font-size-sm);" autocomplete="off">
+                        </div>
+                        <div id="hearing-search-suggestions" class="suggestions-dropdown" style="display:none;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Clear content immediately on page load to prevent showing old content
+        // This runs synchronously before any other scripts
+        (function() {
+            // Clear detail section
+            const detailEl = document.getElementById('gdpr-detail');
+            if (detailEl) {
+                detailEl.innerHTML = '';
+                detailEl.className = '';
+            }
+            // Clear hearing list
+            const hearingListEl = document.getElementById('hearing-list');
+            if (hearingListEl) {
+                hearingListEl.innerHTML = '';
+            }
+            // Clear search input
+            const searchInput = document.getElementById('hearing-search');
+            if (searchInput) {
+                searchInput.value = '';
+            }
+            // Clear any active hearing items
+            const activeItems = document.querySelectorAll('.hearing-item.active');
+            activeItems.forEach(item => item.classList.remove('active'));
+            // Clear footer if it exists
+            const footerEl = document.getElementById('publish-footer');
+            if (footerEl) {
+                footerEl.remove();
+            }
+        })();
+    </script>
+    <script type="module" src="/js/gdpr.js?v=14"></script>
+</body>
+</html>
+
+

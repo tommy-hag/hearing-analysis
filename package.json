@@ -1,0 +1,44 @@
+{
+    "name": "hearing-analysis",
+    "version": "1.0.0",
+    "description": "",
+    "main": "server.js",
+    "engines": {
+        "node": ">=20.0.0"
+    },
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "postinstall": "npm rebuild better-sqlite3 --build-from-source --unsafe-perm || true",
+        "render-build": "echo Using Node $(node -v) && npm install --no-audit --no-fund",
+        "start": "node server.js",
+        "dev": "node --watch server.js",
+        "prefetch:open": "curl -s -X POST http://localhost:$PORT/api/refresh/open | cat",
+        "rebuild:index": "curl -s -X POST http://localhost:$PORT/api/rebuild-index | cat",
+        "prefetch:id": "node -e \"(async()=>{const id=process.argv[1];const base=process.env.PUBLIC_URL||'http://localhost:'+process.env.PORT;const axios=require('axios');const u=base+'/api/prefetch/'+id+'?apiOnly=1';const r=await axios.post(u,{reason:'cli'},{validateStatus:()=>true}).catch(e=>({status:0,data:{error:e.message}}));console.log(JSON.stringify(r.data||{},null,2));})().catch(e=>{console.error(e);process.exit(1);})\"",
+        "render:prefetch:id": "node -e \"(async()=>{const id=process.argv[1];const base=process.env.PUBLIC_URL||'http://localhost:'+process.env.PORT;const axios=require('axios');const u=base+'/api/render-job/prefetch';const r=await axios.post(u,{hearingId:Number(id),apiOnly:true},{validateStatus:()=>true}).catch(e=>({status:0,data:{error:e.message}}));console.log(JSON.stringify(r.data||{},null,2));})().catch(e=>{console.error(e);process.exit(1);})\"",
+        "pipeline:install": "cd analysis-pipeline && npm install",
+        "pipeline:run": "cd analysis-pipeline && node scripts/run-pipeline.js"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "@aws-sdk/client-s3": "^3.58.0",
+        "@aws-sdk/s3-request-presigner": "^3.58.0",
+        "archiver": "^5.3.1",
+        "axios": "^0.21.4",
+        "better-sqlite3": "^9.6.0",
+        "cheerio": "^1.0.0-rc.12",
+        "cors": "^2.8.5",
+        "docx": "^8.5.0",
+        "dotenv": "^16.3.1",
+        "express": "^4.17.1",
+        "express-session": "^1.18.2",
+        "form-data": "^4.0.0",
+        "fs-extra": "^11.1.1",
+        "multer": "^1.4.5-lts.1",
+        "node-cron": "^3.0.2",
+        "openai": "^6.7.0",
+        "pdf-parse": "^1.1.1"
+    }
+}

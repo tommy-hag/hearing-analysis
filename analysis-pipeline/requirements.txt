@@ -1,0 +1,14 @@
+# Python dependencies for analysis pipeline
+
+# Reranking
+FlagEmbedding>=1.2.0
+
+# Document processing (existing)
+# Add any other Python dependencies here
+
+
+
+
+
+
+

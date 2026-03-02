@@ -1,0 +1,10 @@
+# Claude Code ignorerer .gitignore patterns som standard
+# Brug ! prefix til at UN-ignorere filer vi vil have adgang til
+
+# Tillad analysis pipeline output
+!analysis-pipeline/output/
+!analysis-pipeline/output/**
+!analysis-pipeline/output/runs/
+!analysis-pipeline/output/runs/**
+!analysis-pipeline/output/llm-traces/
+!analysis-pipeline/output/llm-traces/**

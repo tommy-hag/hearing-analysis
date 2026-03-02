@@ -1,0 +1,28 @@
+{
+  "name": "analysis-pipeline",
+  "version": "1.0.0",
+  "description": "SOTA analysis pipeline for hearing responses",
+  "main": "src/pipeline/pipeline-orchestrator.js",
+  "type": "module",
+  "scripts": {
+    "test:168": "node scripts/run-pipeline.js 168 --save-checkpoints --checkpoint=test --write",
+    "test:223": "node scripts/run-pipeline.js 223 --save-checkpoints --checkpoint=test --write",
+    "test:168:eval": "node scripts/run-pipeline.js 168 --save-checkpoints --checkpoint=test --write --evaluate",
+    "test:223:eval": "node scripts/run-pipeline.js 223 --save-checkpoints --checkpoint=test --write --evaluate",
+    "pipeline:run": "node scripts/run-pipeline.js",
+    "pipeline:workbench": "node scripts/pipeline-workbench.js",
+    "pipeline:step": "node scripts/pipeline-workbench.js"
+  },
+  "dependencies": {
+    "openai": "^6.7.0",
+    "better-sqlite3": "^9.6.0",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0"
+  }
+}
+
+
+
+

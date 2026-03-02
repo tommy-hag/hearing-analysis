@@ -1,0 +1,54 @@
+# Dependencies
+node_modules/
+venv/
+
+# Environment variables
+.env
+config/.env
+
+# Logs
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+
+
+# === DeepEval cache ===
+.deepeval/
+
+# === Debug/utility scripts i rod ===
+*.cjs
+grep_log.txt
+find_trace.py
+
+# Database
+*.sqlite
+*.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temp files
+tmp/
+temp/
+*.tmp
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+
+# Zone identifiers (Windows)
+*:Zone.Identifier

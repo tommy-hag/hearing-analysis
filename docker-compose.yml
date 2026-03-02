@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: blivhort-ai
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      # Server configuration
+      - NODE_ENV=${NODE_ENV:-production}
+      - DB_PATH=/app/data/hearings.db
+
+      # OpenAI API (required)
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+
+      # Web server LLM model
+      - MODEL_ID=${MODEL_ID:-gpt-5-mini}
+
+      # Pipeline LLM tiers (gpt-5-nano for light/medium, gpt-5-mini for heavy/ultra)
+      - LLM_LIGHT_MODEL=${LLM_LIGHT_MODEL:-gpt-5-nano}
+      - LLM_LIGHT_PLUS_MODEL=${LLM_LIGHT_PLUS_MODEL:-gpt-5-nano}
+      - LLM_MEDIUM_MODEL=${LLM_MEDIUM_MODEL:-gpt-5-nano}
+      - LLM_MEDIUM_PLUS_MODEL=${LLM_MEDIUM_PLUS_MODEL:-gpt-5-nano}
+      - LLM_HEAVY_MODEL=${LLM_HEAVY_MODEL:-gpt-5-mini}
+      - LLM_ULTRA_MODEL=${LLM_ULTRA_MODEL:-gpt-5-mini}
+
+      # Embedding model
+      - EMBEDDING_MODEL=${EMBEDDING_MODEL:-text-embedding-3-large}
+
+      # Drift mode (lite mode disables automatic warming/scraping)
+      - LITE_MODE=${LITE_MODE:-true}
+      - CRON_ENABLED=${CRON_ENABLED:-0}
+    volumes:
+      # Persistent storage for database, uploads, and pipeline output
+      - blivhort-data:/app/data
+      - blivhort-uploads:/app/uploads
+      - blivhort-output:/app/analysis-pipeline/output
+    restart: unless-stopped
+
+volumes:
+  blivhort-data:
+  blivhort-uploads:
+  blivhort-output:
